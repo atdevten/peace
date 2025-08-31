@@ -1,0 +1,28 @@
+package repositories
+
+import (
+	"context"
+	"time"
+
+	"github.com/atdevten/peace/internal/domain/entities"
+	"github.com/atdevten/peace/internal/domain/value_objects"
+)
+
+type MentalHealthRecordFilter struct {
+	UserID    *value_objects.UserID
+	StartedAt *time.Time
+	EndedAt   *time.Time
+	Limit     *int
+	Offset    *int
+	OrderDesc bool // default true
+}
+
+type MentalHealthRecordRepository interface {
+	Create(ctx context.Context, record *entities.MentalHealthRecord) error
+	GetByID(ctx context.Context, id *value_objects.MentalHealthRecordID) (*entities.MentalHealthRecord, error)
+	GetByFilter(ctx context.Context, filter *MentalHealthRecordFilter) ([]*entities.MentalHealthRecord, error)
+	GetAll(ctx context.Context) ([]*entities.MentalHealthRecord, error)
+	Update(ctx context.Context, record *entities.MentalHealthRecord) error
+	Delete(ctx context.Context, id *value_objects.MentalHealthRecordID) error
+	GetDistinctDatesForUser(ctx context.Context, userID *value_objects.UserID) ([]string, error)
+}

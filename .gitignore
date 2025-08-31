@@ -1,0 +1,6 @@
+tmp/*
+.cursor/*
+server
+.DS_Store
+web/node_modules/
+web/.next/

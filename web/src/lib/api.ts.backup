@@ -1,0 +1,206 @@
+import Cookies from 'js-cookie';
+import { 
+  APIResponse, 
+  AuthResponse, 
+  LoginRequest, 
+  RegisterRequest,
+  User,
+  MentalHealthRecord,
+  CreateMentalHealthRecordRequest,
+  UpdateMentalHealthRecordRequest,
+  MentalHealthHeatmapResponse,
+  Quote
+} from './types';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+
+class ApiService {
+  private getAuthHeaders(): HeadersInit {
+    const token = Cookies.get('access_token');
+    return {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+  }
+
+  private async handleResponse<T>(response: Response): Promise<APIResponse<T>> {
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'An error occurred');
+    }
+    
+    return data;
+  }
+
+  // Auth endpoints
+  async login(credentials: LoginRequest): Promise<AuthResponse> {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+    });
+
+    const result = await this.handleResponse<AuthResponse>(response);
+    
+    if (result.data) {
+      // Store tokens in cookies
+      Cookies.set('access_token', result.data.access_token, { expires: 1 }); // 1 day
+      Cookies.set('refresh_token', result.data.refresh_token, { expires: 7 }); // 7 days
+    }
+    
+    return result.data!;
+  }
+
+  async register(userData: RegisterRequest): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+
+    const result = await this.handleResponse<User>(response);
+    return result.data!;
+  }
+
+  async refreshToken(): Promise<{ access_token: string; refresh_token: string }> {
+    const accessToken = Cookies.get('access_token');
+    const refreshToken = Cookies.get('refresh_token');
+
+    if (!accessToken || !refreshToken) {
+      throw new Error('No tokens available');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      }),
+    });
+
+    const result = await this.handleResponse<{ access_token: string; refresh_token: string }>(response);
+    
+    if (result.data) {
+      // Update tokens in cookies
+      Cookies.set('access_token', result.data.access_token, { expires: 1 });
+      Cookies.set('refresh_token', result.data.refresh_token, { expires: 7 });
+    }
+    
+    return result.data!;
+  }
+
+  logout(): void {
+    Cookies.remove('access_token');
+    Cookies.remove('refresh_token');
+  }
+
+  // User endpoints
+  async getCurrentUser(): Promise<User> {
+    const response = await fetch(`${API_BASE_URL}/user/me`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const result = await this.handleResponse<User>(response);
+    return result.data!;
+  }
+
+  async updateProfile(data: { first_name?: string | null; last_name?: string | null }): Promise<User> {
+    // Convert empty strings to null for optional fields
+    const processedData = {
+      first_name: data.first_name?.trim() || null,
+      last_name: data.last_name?.trim() || null,
+    };
+
+    const response = await fetch(`${API_BASE_URL}/user/profile`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(processedData),
+    });
+
+    const result = await this.handleResponse<User>(response);
+    return result.data!;
+  }
+
+  // Mental Health Records endpoints
+  async createMentalHealthRecord(data: CreateMentalHealthRecordRequest): Promise<MentalHealthRecord> {
+    const response = await fetch(`${API_BASE_URL}/records`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    const result = await this.handleResponse<MentalHealthRecord>(response);
+    return result.data!;
+  }
+
+  async getMentalHealthRecords(startedAt?: string, endedAt?: string): Promise<MentalHealthRecord[]> {
+    const params = new URLSearchParams();
+    if (startedAt) params.append('started_at', startedAt);
+    if (endedAt) params.append('ended_at', endedAt);
+    
+    const url = `${API_BASE_URL}/records${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await fetch(url, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const result = await this.handleResponse<MentalHealthRecord[]>(response);
+    return result.data!;
+  }
+
+  async getMentalHealthRecord(id: string): Promise<MentalHealthRecord> {
+    const response = await fetch(`${API_BASE_URL}/records/${id}`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const result = await this.handleResponse<MentalHealthRecord>(response);
+    return result.data!;
+  }
+
+  async updateMentalHealthRecord(id: string, data: UpdateMentalHealthRecordRequest): Promise<MentalHealthRecord> {
+    const response = await fetch(`${API_BASE_URL}/records/${id}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(data),
+    });
+
+    const result = await this.handleResponse<MentalHealthRecord>(response);
+    return result.data!;
+  }
+
+  async deleteMentalHealthRecord(id: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/records/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+
+    await this.handleResponse<void>(response);
+  }
+
+  async getMentalHealthHeatmap(startedAt?: string, endedAt?: string): Promise<MentalHealthHeatmapResponse> {
+    const params = new URLSearchParams();
+    if (startedAt) params.append('started_at', startedAt);
+    if (endedAt) params.append('ended_at', endedAt);
+    
+    const url = `${API_BASE_URL}/records/heatmap${params.toString() ? `?${params.toString()}` : ''}`;
+    const response = await fetch(url, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const result = await this.handleResponse<MentalHealthHeatmapResponse>(response);
+    return result.data!;
+  }
+
+  // Quote methods
+  async getRandomQuote(): Promise<Quote> {
+    const response = await fetch(`${API_BASE_URL}/quotes/random`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    const result = await this.handleResponse<Quote>(response);
+    return result.data!;
+  }
+}
+
+export const apiService = new ApiService();
