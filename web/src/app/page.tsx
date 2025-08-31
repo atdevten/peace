@@ -70,16 +70,16 @@ function MoodPicker({
   onChange
 }: {value: CheckIn["mood"];onChange: (m: CheckIn["mood"]) => void;}) {
   const moods = [
-    { v: 1, label: "Rough Day", emoji: "😣", color: "from-red-600 to-red-500", message: "It's okay to have tough days. Tomorrow will be better! 🌅" },
-    { v: 2, label: "Struggling", emoji: "😞", color: "from-red-500 to-orange-600", message: "You're doing your best. That's what matters! 💪" },
-    { v: 3, label: "Down", emoji: "😕", color: "from-orange-600 to-orange-500", message: "Small steps forward are still progress! 🚶‍♂️" },
-    { v: 4, label: "Meh", emoji: "😟", color: "from-orange-500 to-yellow-500", message: "You've got this! Things will improve! ✨" },
-    { v: 5, label: "Okay", emoji: "😐", color: "from-yellow-500 to-yellow-400", message: "Steady as you go! You're doing great! 🌟" },
-    { v: 6, label: "Pretty Good", emoji: "🙂", color: "from-yellow-400 to-lime-500", message: "Nice! Keep that positive energy flowing! 🌊" },
-    { v: 7, label: "Good", emoji: "😊", color: "from-lime-500 to-lime-400", message: "Excellent! You're shining today! ✨" },
-    { v: 8, label: "Great", emoji: "😄", color: "from-lime-400 to-emerald-500", message: "Amazing! You're absolutely crushing it! 🚀" },
-    { v: 9, label: "Fantastic", emoji: "😁", color: "from-emerald-500 to-emerald-400", message: "Incredible! You're unstoppable! 💫" },
-    { v: 10, label: "Perfect", emoji: "🤩", color: "from-emerald-400 to-emerald-300", message: "Absolutely perfect! You're a star! ⭐" }
+    { v: 1, label: "Rough Day", emoji: "😣", color: "from-rose-500/40 to-pink-500/40", message: "It's okay to have tough days. Tomorrow will be better! 🌅" },
+    { v: 2, label: "Struggling", emoji: "😞", color: "from-orange-400/40 to-amber-400/40", message: "You're doing your best. That's what matters! 💪" },
+    { v: 3, label: "Down", emoji: "😕", color: "from-amber-400/40 to-yellow-400/40", message: "Small steps forward are still progress! 🚶‍♂️" },
+    { v: 4, label: "Meh", emoji: "😟", color: "from-yellow-400/40 to-lime-400/40", message: "You've got this! Things will improve! ✨" },
+    { v: 5, label: "Okay", emoji: "😐", color: "from-lime-400/40 to-emerald-400/40", message: "Steady as you go! You're doing great! 🌟" },
+    { v: 6, label: "Pretty Good", emoji: "🙂", color: "from-emerald-400/40 to-teal-400/40", message: "Nice! Keep that positive energy flowing! 🌊" },
+    { v: 7, label: "Good", emoji: "😊", color: "from-teal-400/40 to-cyan-400/40", message: "Excellent! You're shining today! ✨" },
+    { v: 8, label: "Great", emoji: "😄", color: "from-cyan-400/40 to-blue-400/40", message: "Amazing! You're absolutely crushing it! 🚀" },
+    { v: 9, label: "Fantastic", emoji: "😁", color: "from-blue-400/40 to-indigo-400/40", message: "Incredible! You're unstoppable! 💫" },
+    { v: 10, label: "Perfect", emoji: "🤩", color: "from-indigo-400/40 to-purple-400/40", message: "Absolutely perfect! You're a star! ⭐" }
   ] as const;
 
   const selectedMood = moods.find(m => m.v === value);
@@ -88,8 +88,8 @@ function MoodPicker({
     <div className="space-y-4">
       {/* Encouraging message */}
       {selectedMood && (
-        <div className="text-center p-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20">
-          <p className="text-sm text-emerald-200 font-medium">{selectedMood.message}</p>
+        <div className={`text-center p-3 rounded-xl bg-gradient-to-r ${selectedMood.color.replace('/40', '/15')} border border-white/20`}>
+          <p className="text-sm text-white font-medium">{selectedMood.message}</p>
         </div>
       )}
       
@@ -133,16 +133,16 @@ function EnergyPicker({
   onChange
 }: {value: number;onChange: (n: number) => void;}) {
   const energyLevels = [
-    { v: 1, emoji: "😴", label: "Need Rest", color: "from-red-500 to-red-400", message: "Rest is productive! Take care of yourself! 🛏️" },
-    { v: 2, emoji: "😪", label: "Low Battery", color: "from-red-400 to-orange-500", message: "Small energy is still energy! 🔋" },
-    { v: 3, emoji: "😑", label: "Getting There", color: "from-orange-500 to-orange-400", message: "You're building momentum! 🚶‍♂️" },
-    { v: 4, emoji: "😐", label: "Steady", color: "from-orange-400 to-yellow-500", message: "Consistent energy is powerful! ⚡" },
-    { v: 5, emoji: "🙂", label: "Balanced", color: "from-yellow-500 to-yellow-400", message: "Perfect balance! You're in the zone! 🎯" },
-    { v: 6, emoji: "😊", label: "Energized", color: "from-yellow-400 to-lime-500", message: "Great energy! Keep it flowing! 🌊" },
-    { v: 7, emoji: "😄", label: "Powerful", color: "from-lime-500 to-lime-400", message: "You're unstoppable! 💪" },
-    { v: 8, emoji: "😁", label: "Supercharged", color: "from-lime-400 to-emerald-500", message: "Incredible energy! You're on fire! 🔥" },
-    { v: 9, emoji: "🤩", label: "Unstoppable", color: "from-emerald-500 to-emerald-400", message: "Absolutely unstoppable! 🚀" },
-    { v: 10, emoji: "🚀", label: "Maximum Power", color: "from-emerald-400 to-emerald-300", message: "MAXIMUM POWER! You're incredible! ⭐" }
+    { v: 1, emoji: "😴", label: "Need Rest", color: "from-indigo-400/40 to-purple-400/40", message: "Rest is productive! Take care of yourself! 🛏️" },
+    { v: 2, emoji: "😪", label: "Low Battery", color: "from-blue-400/40 to-indigo-400/40", message: "Small energy is still energy! 🔋" },
+    { v: 3, emoji: "😑", label: "Getting There", color: "from-cyan-400/40 to-blue-400/40", message: "You're building momentum! 🚶‍♂️" },
+    { v: 4, emoji: "😐", label: "Steady", color: "from-teal-400/40 to-cyan-400/40", message: "Consistent energy is powerful! ⚡" },
+    { v: 5, emoji: "🙂", label: "Balanced", color: "from-emerald-400/40 to-teal-400/40", message: "Perfect balance! You're in the zone! 🎯" },
+    { v: 6, emoji: "😊", label: "Energized", color: "from-lime-400/40 to-emerald-400/40", message: "Great energy! Keep it flowing! 🌊" },
+    { v: 7, emoji: "😄", label: "Powerful", color: "from-yellow-400/40 to-lime-400/40", message: "You're unstoppable! 💪" },
+    { v: 8, emoji: "😁", label: "Supercharged", color: "from-amber-400/40 to-yellow-400/40", message: "Incredible energy! You're on fire! 🔥" },
+    { v: 9, emoji: "🤩", label: "Unstoppable", color: "from-orange-400/40 to-amber-400/40", message: "Absolutely unstoppable! 🚀" },
+    { v: 10, emoji: "🚀", label: "Maximum Power", color: "from-rose-400/40 to-pink-400/40", message: "MAXIMUM POWER! You're incredible! ⭐" }
   ];
 
   const selectedEnergy = energyLevels.find(l => l.v === value);
@@ -160,8 +160,8 @@ function EnergyPicker({
 
       {/* Encouraging message */}
       {selectedEnergy && (
-        <div className="text-center p-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20">
-          <p className="text-sm text-emerald-200 font-medium">{selectedEnergy.message}</p>
+        <div className={`text-center p-3 rounded-xl bg-gradient-to-r ${selectedEnergy.color.replace('/40', '/15')} border border-white/20`}>
+          <p className="text-sm text-white font-medium">{selectedEnergy.message}</p>
         </div>
       )}
 
@@ -551,7 +551,7 @@ export default function Page() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen w-full bg-[radial-gradient(1200px_600px_at_100%_-10%,rgba(16,185,129,0.08),transparent_60%),radial-gradient(800px_400px_at_0%_0%,rgba(59,130,246,0.08),transparent_50%)] bg-black text-gray-100 relative">
+      <div className="min-h-screen w-full bg-[radial-gradient(1200px_600px_at_100%_-10%,rgba(147,51,234,0.12),transparent_60%),radial-gradient(800px_400px_at_0%_0%,rgba(59,130,246,0.10),transparent_50%),radial-gradient(600px_300px_at_50%_50%,rgba(236,72,153,0.08),transparent_70%)] bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-purple-100 relative">
         <Navigation />
         <main className="mx-auto max-w-6xl px-4 py-10 md:py-14">
           {/* Header */}
@@ -562,16 +562,16 @@ export default function Page() {
                   Mindful — Track, Care, Grow
                 </h1>
               </div>
-              <div className="hidden md:flex items-center gap-2 text-sm text-gray-400">
-                <div className="rounded-xl border border-white/10 px-3 py-2 bg-white/[0.03]">
-                  <span className="text-gray-300">7‑day avg</span>
-                  <span className="ml-2 text-emerald-300 font-medium">
+              <div className="hidden md:flex items-center gap-2 text-sm text-slate-400">
+                <div className="rounded-xl border border-white/20 px-3 py-2 bg-gradient-to-br from-white/[0.08] to-purple-500/[0.02]">
+                  <span className="text-slate-200">7‑day avg</span>
+                  <span className="ml-2 text-purple-300 font-medium">
                     {stats.avg7 || "–"}
                   </span>
                 </div>
-                <div className="rounded-xl border border-white/10 px-3 py-2 bg-white/[0.03]">
-                  <span className="text-gray-300">Streak</span>
-                  <span className="ml-2 text-emerald-300 font-medium">
+                <div className="rounded-xl border border-white/20 px-3 py-2 bg-gradient-to-br from-white/[0.08] to-blue-500/[0.02]">
+                  <span className="text-slate-200">Streak</span>
+                  <span className="ml-2 text-blue-300 font-medium">
                     {streakLoading ? "..." : streak}d
                   </span>
                 </div>
@@ -606,22 +606,22 @@ export default function Page() {
                     <MoodPicker value={mood} onChange={setMood} />
                     <EnergyPicker value={energy} onChange={setEnergy} />
                     <div className="flex flex-col gap-2">
-                      <span className="text-sm text-gray-300">Tags</span>
+                      <span className="text-sm text-slate-200">Tags</span>
                       <TagPicker selected={tags} onToggle={toggleTag} />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="notes" className="text-sm text-gray-300">Notes</label>
+                      <label htmlFor="notes" className="text-sm text-slate-200">Notes</label>
                       <textarea
                         id="notes"
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Optional journal…"
                         rows={3}
-                        className="w-full resize-none rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-gray-100 placeholder:text-gray-500 focus:border-emerald-400/40 focus:outline-none"
+                        className="w-full resize-none rounded-xl border border-white/20 bg-gradient-to-br from-white/[0.05] to-purple-500/[0.02] px-3 py-2 text-purple-100 placeholder:text-slate-400 focus:border-purple-400/40 focus:outline-none"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-sm text-gray-300">Privacy</span>
+                      <span className="text-sm text-slate-200">Privacy</span>
                       <PrivacyToggle isPublic={isPublic} onChange={setIsPublic} />
                     </div>
                     {saveError && (
@@ -643,14 +643,14 @@ export default function Page() {
                         <button
                           onClick={resetForm}
                           disabled={isSaving}
-                          className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2 text-gray-300 hover:bg-white/10 hover:border-white/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="rounded-xl border border-white/20 bg-gradient-to-br from-white/[0.05] to-slate-500/[0.02] px-4 py-2 text-slate-200 hover:from-white/[0.10] hover:to-slate-500/[0.05] hover:border-white/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Reset
                         </button>
                         <button
                           onClick={saveCheckIn}
                           disabled={isSaving}
-                          className="rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-2 text-emerald-100 hover:bg-emerald-500/25 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          className="rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/15 to-pink-500/10 px-4 py-2 text-purple-100 hover:from-purple-500/25 hover:to-pink-500/15 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                           {isSaving && (
                             <div className="animate-spin rounded-full h-4 w-4 border-b border-emerald-400"></div>
