@@ -7,9 +7,9 @@ CREATE TABLE IF NOT EXISTS mental_health_records (
     energy_level INTEGER NOT NULL,
     notes TEXT,
     status char(25) NOT NULL DEFAULT 'CLOSED',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP WITH TIME ZONE
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
 );
 
 -- Create indexes for mental_health_records table

@@ -1,6 +1,7 @@
 package value_objects
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -53,6 +54,20 @@ func TestNewAuthor(t *testing.T) {
 			wantValue:   "",
 			wantErr:     true,
 			expectedErr: "author cannot be empty",
+		},
+		{
+			name:        "max length 2000 characters",
+			input:       strings.Repeat("a", 2000),
+			wantValue:   strings.Repeat("a", 2000),
+			wantErr:     false,
+			expectedErr: "",
+		},
+		{
+			name:        "too long 2001 characters",
+			input:       strings.Repeat("a", 2001),
+			wantValue:   "",
+			wantErr:     true,
+			expectedErr: "author cannot exceed 2000 characters",
 		},
 	}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { ProtectedRoute } from '@/components/protected-route';
 import { Navigation } from '@/components/navigation';
@@ -455,14 +455,8 @@ export default function Page() {
     );
   }, [history]);
 
-  // Option 3: Default to expanded if no today entry, collapsed if already checked in
-  // Option 1: Allow manual toggle
-  const [isCheckInExpanded, setIsCheckInExpanded] = useState<boolean>(!todayEntry);
-
-  // Update expansion state when todayEntry changes (when records load)
-  useEffect(() => {
-    setIsCheckInExpanded(!todayEntry);
-  }, [todayEntry]);
+  // Default to collapsed state - user can manually expand if needed
+  const [isCheckInExpanded, setIsCheckInExpanded] = useState<boolean>(false);
 
   const [mood, setMood] = useState<CheckIn["mood"]>(5);
   const [energy, setEnergy] = useState(5);
@@ -589,7 +583,9 @@ export default function Page() {
                 subtitle={
                   todayEntry 
                     ? `Already checked in today (Mood: ${todayEntry.mood}/10, Energy: ${todayEntry.energy}/10)` 
-                    : "How are you feeling right now?"
+                    : isCheckInExpanded 
+                      ? "How are you feeling right now?" 
+                      : "Click to expand and record your daily check-in"
                 }
                 right={
                   <button

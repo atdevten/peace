@@ -16,8 +16,10 @@ func NewAuthor(value string) (*Author, error) {
 		return nil, fmt.Errorf("author cannot be empty")
 	}
 
-	if len(trimmedValue) > 255 {
-		return nil, fmt.Errorf("author cannot exceed 255 characters")
+	// Removed 255 character limit since we're using TEXT type
+	// Allow reasonable maximum to prevent abuse
+	if len(trimmedValue) > 2000 {
+		return nil, fmt.Errorf("author cannot exceed 2000 characters")
 	}
 
 	return &Author{

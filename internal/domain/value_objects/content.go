@@ -14,10 +14,6 @@ func NewContent(value string) (*Content, error) {
 		return nil, fmt.Errorf("content cannot be empty")
 	}
 
-	if len(value) > 1000 {
-		return nil, fmt.Errorf("content cannot exceed 1000 characters")
-	}
-
 	return &Content{
 		value: strings.TrimSpace(value),
 	}, nil

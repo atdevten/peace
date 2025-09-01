@@ -41,13 +41,6 @@ func TestNewContent(t *testing.T) {
 			expectedErr: "",
 		},
 		{
-			name:        "valid content maximum length",
-			input:       string(make([]byte, 1000)),
-			wantValue:   string(make([]byte, 1000)),
-			wantErr:     false,
-			expectedErr: "",
-		},
-		{
 			name:        "empty content",
 			input:       "",
 			wantValue:   "",
@@ -74,13 +67,6 @@ func TestNewContent(t *testing.T) {
 			wantValue:   "",
 			wantErr:     true,
 			expectedErr: "content cannot be empty",
-		},
-		{
-			name:        "content too long",
-			input:       string(make([]byte, 1001)),
-			wantValue:   "",
-			wantErr:     true,
-			expectedErr: "content cannot exceed 1000 characters",
 		},
 	}
 
