@@ -613,7 +613,7 @@ export default function Page() {
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Optional journal…"
                         rows={3}
-                        className="w-full resize-none rounded-xl border border-white/20 bg-gradient-to-br from-white/[0.05] to-purple-500/[0.02] px-3 py-2 text-purple-100 placeholder:text-slate-400 focus:border-purple-400/40 focus:outline-none"
+                        className="w-full resize-none rounded-xl border border-gray-600 bg-gray-800 px-3 py-2 text-gray-100 placeholder:text-gray-400 focus:border-gray-500 focus:outline-none"
                       />
                     </div>
                     <div className="flex flex-col gap-2">
