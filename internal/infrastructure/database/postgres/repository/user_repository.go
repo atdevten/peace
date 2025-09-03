@@ -37,15 +37,23 @@ func (r *PostgreSQLUserRepository) Create(ctx context.Context, user *entities.Us
 		lastName = &lastNameStr
 	}
 
+	var passwordHash string
+	if user.PasswordHash() != nil {
+		passwordHash = user.PasswordHash().String()
+	}
+
 	model := models.User{
 		ID:            user.ID().String(),
 		Email:         user.Email().String(),
 		Username:      user.Username().String(),
 		FirstName:     firstName,
 		LastName:      lastName,
-		PasswordHash:  user.PasswordHash().String(),
+		PasswordHash:  passwordHash,
 		IsActive:      user.IsActive(),
 		EmailVerified: user.EmailVerified(),
+		AuthProvider:  user.AuthProvider(),
+		GoogleID:      user.GoogleID(),
+		GooglePicture: user.GooglePicture(),
 		CreatedAt:     user.CreatedAt(),
 		UpdatedAt:     user.UpdatedAt(),
 		DeletedAt:     user.DeletedAt(),
@@ -133,15 +141,23 @@ func (r *PostgreSQLUserRepository) Update(ctx context.Context, user *entities.Us
 		lastName = &lastNameStr
 	}
 
+	var passwordHash string
+	if user.PasswordHash() != nil {
+		passwordHash = user.PasswordHash().String()
+	}
+
 	model := models.User{
 		ID:            user.ID().String(),
 		Email:         user.Email().String(),
 		Username:      user.Username().String(),
 		FirstName:     firstName,
 		LastName:      lastName,
-		PasswordHash:  user.PasswordHash().String(),
+		PasswordHash:  passwordHash,
 		IsActive:      user.IsActive(),
 		EmailVerified: user.EmailVerified(),
+		AuthProvider:  user.AuthProvider(),
+		GoogleID:      user.GoogleID(),
+		GooglePicture: user.GooglePicture(),
 		CreatedAt:     user.CreatedAt(),
 		UpdatedAt:     user.UpdatedAt(),
 		DeletedAt:     user.DeletedAt(),
@@ -195,7 +211,10 @@ func (r *PostgreSQLUserRepository) modelToEntity(model models.User) (*entities.U
 		return nil, fmt.Errorf("value_objects.NewUsername: %w", err)
 	}
 
-	hashedPassword := value_objects.NewHashedPassword(model.PasswordHash)
+	var hashedPassword *value_objects.HashedPassword
+	if model.PasswordHash != "" {
+		hashedPassword = value_objects.NewHashedPassword(model.PasswordHash)
+	}
 
 	// Convert database strings to value objects
 	firstName, err := value_objects.NewOptionalFirstName(model.FirstName)
@@ -217,6 +236,9 @@ func (r *PostgreSQLUserRepository) modelToEntity(model models.User) (*entities.U
 		hashedPassword,
 		model.IsActive,
 		model.EmailVerified,
+		model.AuthProvider,
+		model.GoogleID,
+		model.GooglePicture,
 		model.CreatedAt,
 		model.UpdatedAt,
 		model.DeletedAt,

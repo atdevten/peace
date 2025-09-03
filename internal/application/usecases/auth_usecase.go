@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/atdevten/peace/internal/application/commands"
+	"github.com/atdevten/peace/internal/application/services/google"
 	appjwt "github.com/atdevten/peace/internal/application/services/jwt"
 	"github.com/atdevten/peace/internal/domain/entities"
 	"github.com/atdevten/peace/internal/domain/repositories"
@@ -15,18 +16,21 @@ import (
 type AuthUseCase interface {
 	Register(ctx context.Context, command commands.RegisterCommand) (*entities.User, error)
 	Login(ctx context.Context, command commands.LoginCommand) (*entities.User, string, string, error) // user, access, refresh, error
+	LoginWithGoogle(ctx context.Context, code string) (*entities.User, string, string, error)         // user, access, refresh, error
 	Refresh(ctx context.Context, accessToken string, refreshToken string) (string, string, error)     // new access, new refresh, error
 }
 
 type AuthUseCaseImpl struct {
-	userRepo   repositories.UserRepository
-	jwtService appjwt.Service
+	userRepo      repositories.UserRepository
+	jwtService    appjwt.Service
+	googleService google.Service
 }
 
-func NewAuthUseCase(userRepo repositories.UserRepository, jwtService appjwt.Service) AuthUseCase {
+func NewAuthUseCase(userRepo repositories.UserRepository, jwtService appjwt.Service, googleService google.Service) AuthUseCase {
 	return &AuthUseCaseImpl{
-		userRepo:   userRepo,
-		jwtService: jwtService,
+		userRepo:      userRepo,
+		jwtService:    jwtService,
+		googleService: googleService,
 	}
 }
 
@@ -123,4 +127,53 @@ func (uc *AuthUseCaseImpl) Refresh(ctx context.Context, accessToken string, refr
 		return "", "", err
 	}
 	return newAccess, newRefresh, nil
+}
+
+func (uc *AuthUseCaseImpl) LoginWithGoogle(ctx context.Context, code string) (*entities.User, string, string, error) {
+	// Exchange code for user info
+	googleUser, err := uc.googleService.ExchangeCodeForToken(ctx, code)
+	if err != nil {
+		return nil, "", "", fmt.Errorf("uc.googleService.ExchangeCodeForToken: %w", err)
+	}
+
+	// Create email value object
+	emailVO, err := value_objects.NewEmail(googleUser.Email)
+	if err != nil {
+		return nil, "", "", fmt.Errorf("value_objects.NewEmail: %w", err)
+	}
+
+	// Try to find existing user by email
+	existingUser, err := uc.userRepo.GetByFilter(ctx, repositories.NewUserFilter(nil, emailVO, nil))
+	if err != nil {
+		// If user not found, create new one
+		newUser, err := entities.NewGoogleUser(
+			googleUser.Email,
+			&googleUser.FirstName,
+			&googleUser.LastName,
+			googleUser.ID,
+			&googleUser.Picture,
+		)
+		if err != nil {
+			return nil, "", "", fmt.Errorf("entities.NewGoogleUser: %w", err)
+		}
+
+		// Create user in database
+		if err := uc.userRepo.Create(ctx, newUser); err != nil {
+			return nil, "", "", fmt.Errorf("uc.userRepo.Create: %w", err)
+		}
+		existingUser = newUser
+	}
+
+	// Generate tokens
+	access, err := uc.jwtService.GenerateAccessToken(*existingUser.ID(), *existingUser.Email())
+	if err != nil {
+		return nil, "", "", fmt.Errorf("uc.jwtService.GenerateAccessToken: %w", err)
+	}
+
+	refresh, err := uc.jwtService.GenerateRefreshToken(*existingUser.ID(), *existingUser.Email())
+	if err != nil {
+		return nil, "", "", fmt.Errorf("uc.jwtService.GenerateRefreshToken: %w", err)
+	}
+
+	return existingUser, access, refresh, nil
 }

@@ -9,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
+  loginWithGoogle: (code: string) => Promise<void>;
   register: (userData: RegisterRequest) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -31,13 +32,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const userData = await apiService.getCurrentUser();
           setUser(userData);
-        } catch (error) {
+        } catch {
           // Token might be expired, try to refresh
           try {
             await apiService.refreshToken();
             const userData = await apiService.getCurrentUser();
             setUser(userData);
-          } catch (refreshError) {
+          } catch {
             // Refresh failed, clear tokens
             apiService.logout();
           }
@@ -53,6 +54,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (credentials: LoginRequest) => {
     try {
       const authResponse = await apiService.login(credentials);
+      setUser(authResponse.user);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const loginWithGoogle = async (code: string) => {
+    try {
+      const authResponse = await apiService.loginWithGoogle(code);
       setUser(authResponse.user);
     } catch (error) {
       throw error;
@@ -81,6 +91,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     loading,
     login,
+    loginWithGoogle,
     register,
     logout,
     isAuthenticated,

@@ -52,6 +52,24 @@ class ApiService {
     return result.data!;
   }
 
+  async loginWithGoogle(code: string): Promise<AuthResponse> {
+    const response = await fetch(`${API_BASE_URL}/auth/google/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+
+    const result = await this.handleResponse<AuthResponse>(response);
+    
+    if (result.data) {
+      // Store tokens in cookies
+      Cookies.set('access_token', result.data.access_token, { expires: 1 }); // 1 day
+      Cookies.set('refresh_token', result.data.refresh_token, { expires: 7 }); // 7 days
+    }
+    
+    return result.data!;
+  }
+
   async register(userData: RegisterRequest): Promise<User> {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',

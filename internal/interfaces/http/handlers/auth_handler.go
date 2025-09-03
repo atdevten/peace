@@ -153,3 +153,51 @@ func (h *AuthHandler) Refresh(c *gin.Context) {
 		},
 	})
 }
+
+// GoogleLoginRequest represents the request for Google OAuth login
+type GoogleLoginRequest struct {
+	Code string `json:"code" binding:"required"`
+}
+
+// GoogleLogin handles Google OAuth login
+func (h *AuthHandler) GoogleLogin(c *gin.Context) {
+	var req GoogleLoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		Error(c, CodeBadRequest, "Invalid request body")
+		return
+	}
+
+	// Execute use case
+	ctx := c.Request.Context()
+	user, access, refresh, err := h.authUseCase.LoginWithGoogle(ctx, req.Code)
+	if err != nil {
+		Error(c, CodeUnauthorized, err.Error())
+		return
+	}
+
+	// Build response
+	userResponse := UserResponse{
+		ID:       user.ID().String(),
+		Email:    user.Email().String(),
+		Username: user.Username().String(),
+		FullName: user.GetFullName(),
+	}
+
+	loginResponse := LoginResponse{
+		User:         userResponse,
+		AccessToken:  access,
+		RefreshToken: refresh,
+	}
+
+	Success(c, "Google login successful", loginResponse)
+}
+
+// GetGoogleAuthURL returns the Google OAuth authorization URL
+func (h *AuthHandler) GetGoogleAuthURL(c *gin.Context) {
+	// This would typically get the URL from a service
+	// For now, we'll return a placeholder
+	Success(c, "Google OAuth URL", gin.H{
+		"auth_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=...",
+		"note":     "This endpoint should be updated to use Google service",
+	})
+}

@@ -69,13 +69,3 @@ func (f *FirstName) Value() string {
 func (f *FirstName) IsEmpty() bool {
 	return f.value == ""
 }
-
-// isValidNameCharacter checks if a character is valid for a name
-func isValidNameCharacter(char rune) bool {
-	return (char >= 'a' && char <= 'z') ||
-		(char >= 'A' && char <= 'Z') ||
-		char == ' ' ||
-		char == '-' ||
-		char == '\'' ||
-		char == '.'
-}

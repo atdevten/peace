@@ -68,7 +68,8 @@ type CORSConfig struct {
 
 // AuthConfig represents authentication configuration
 type AuthConfig struct {
-	JWT JWTConfig `yaml:"jwt"`
+	JWT    JWTConfig    `yaml:"jwt"`
+	Google GoogleConfig `yaml:"google"`
 }
 
 // JWTConfig represents JWT configuration
@@ -76,6 +77,13 @@ type JWTConfig struct {
 	Secret            string        `yaml:"secret" env:"JWT_SECRET"`
 	Expiration        time.Duration `yaml:"expiration" env:"JWT_EXPIRATION"`
 	RefreshExpiration time.Duration `yaml:"refresh_expiration" env:"JWT_REFRESH_EXPIRATION"`
+}
+
+// GoogleConfig represents Google OAuth configuration
+type GoogleConfig struct {
+	ClientID     string `yaml:"client_id" env:"GOOGLE_CLIENT_ID"`
+	ClientSecret string `yaml:"client_secret" env:"GOOGLE_CLIENT_SECRET"`
+	RedirectURI  string `yaml:"redirect_uri" env:"GOOGLE_REDIRECT_URI"`
 }
 
 // LogConfig represents logging configuration

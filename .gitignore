@@ -5,3 +5,5 @@ server
 web/node_modules/
 web/.next/
 bin/quotes
+configs/config.yml
+web/.env.local
