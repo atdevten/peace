@@ -280,7 +280,7 @@ func (u *User) VerifyPassword(password string) error {
 		return err
 	}
 
-	if !u.passwordHash.Verify(passwordVO) {
+	if u.passwordHash == nil || !u.passwordHash.Verify(passwordVO) {
 		return errors.New("invalid password")
 	}
 

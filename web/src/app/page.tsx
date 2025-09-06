@@ -10,6 +10,7 @@ import { useMentalHealthRecords, useMentalHealthHeatmap } from '@/hooks/use-ment
 import { MentalHealthRecord } from '@/lib/types';
 import { BuyMeACoffee } from '@/components/buy-me-coffee';
 import { RecordDetailModal } from '../components/record-detail-modal';
+import OnlineUsersCount from '@/components/online-users-count';
 
 type HabitKey =
 "meditate" |
@@ -569,10 +570,22 @@ export default function Page() {
                     {streakLoading ? "..." : streak}d
                   </span>
                 </div>
+                <div className="rounded-xl border border-white/20 px-3 py-2 bg-gradient-to-br from-white/[0.08] to-green-500/[0.02]">
+                  <span className="text-slate-200">Online</span>
+                  <span className="ml-2">
+                    <OnlineUsersCount />
+                  </span>
+                </div>
                 <BuyMeACoffee username="svie4mv" compact={true} />
               </div>
             </div>
           </header>
+
+          {/* Mobile: Online users count */}
+          <div className="md:hidden mb-4 flex items-center gap-2 text-sm text-slate-400">
+            <span className="text-slate-200">Online</span>
+            <OnlineUsersCount />
+          </div>
 
           {/* Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5">

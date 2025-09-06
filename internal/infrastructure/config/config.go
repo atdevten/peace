@@ -19,11 +19,12 @@ type Config struct {
 
 // ServerConfig represents server configuration
 type ServerConfig struct {
-	Port         string        `yaml:"port" env:"SERVER_PORT"`
-	Host         string        `yaml:"host" env:"SERVER_HOST"`
-	ReadTimeout  time.Duration `yaml:"read_timeout"`
-	WriteTimeout time.Duration `yaml:"write_timeout"`
-	IdleTimeout  time.Duration `yaml:"idle_timeout"`
+	Port          string        `yaml:"port" env:"SERVER_PORT"`
+	Host          string        `yaml:"host" env:"SERVER_HOST"`
+	WebSocketPort string        `yaml:"websocket_port" env:"WEBSOCKET_PORT"`
+	ReadTimeout   time.Duration `yaml:"read_timeout"`
+	WriteTimeout  time.Duration `yaml:"write_timeout"`
+	IdleTimeout   time.Duration `yaml:"idle_timeout"`
 }
 
 // DatabaseConfig represents database configuration

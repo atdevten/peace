@@ -21,16 +21,26 @@ help:
 	@echo "  data-seed          - Seed database with sample data"
 
 # Build the application
-build:
-	docker-compose build
+build: build-server build-websocket
+build-server:
+	@echo "Building HTTP server..."
+	@go build -o bin/server ./cmd/server
+build-websocket:
+	@echo "Building WebSocket server..."
+	@go build -o bin/websocket-server ./cmd/websocket-server
 
 # Run production stack
 run:
 	docker-compose up -d
 
 # Run development environment
-dev:
-	docker-compose -f docker-compose.dev.yml up -d
+dev: dev-server dev-websocket
+dev-server:
+	@echo "Starting HTTP server..."
+	@go run ./cmd/server/main.go -config configs/config.yml
+dev-websocket:
+	@echo "Starting WebSocket server..."
+	@go run ./cmd/websocket-server/main.go -config configs/config.yml
 
 # Stop all services
 stop:
@@ -51,7 +61,8 @@ clean:
 # Health check
 health:
 	@echo "Checking service health..."
-	@curl -f http://localhost:8080/health || echo "App is not healthy"
+	@curl -f http://localhost:8080/health || echo "HTTP server is not healthy"
+	@curl -f http://localhost:8081/ws/health || echo "WebSocket server is not healthy"
 	@curl -f http://localhost:5432 || echo "PostgreSQL is not healthy"
 	@curl -f http://localhost:6380 || echo "Redis is not healthy"
 

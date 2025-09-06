@@ -49,6 +49,9 @@ func NewHashedPassword(hash string) *HashedPassword {
 }
 
 func (hp *HashedPassword) Verify(password *Password) bool {
+	if hp == nil || password == nil {
+		return false
+	}
 	err := bcrypt.CompareHashAndPassword([]byte(hp.hash), []byte(password.value))
 	return err == nil
 }
