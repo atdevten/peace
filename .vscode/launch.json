@@ -1,48 +1,82 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug Go App (Local)",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/server",
-            "args": [
-                "-config",
-                "${workspaceFolder}/configs/config.yml"
-            ],
-            "env": {
-                "ENVIRONMENT": "development",
-                "LOG_LEVEL": "debug"
-            },
-            "showLog": true,
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Debug Go App (Test Config)",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/server",
-            "args": [
-                "-config",
-                "${workspaceFolder}/configs/config.test.yml"
-            ],
-            "env": {
-                "ENVIRONMENT": "test",
-                "LOG_LEVEL": "debug"
-            },
-            "showLog": true,
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Debug Go Tests",
-            "type": "go",
-            "request": "launch",
-            "mode": "test",
-            "program": "${workspaceFolder}",
-            "showLog": true,
-            "console": "integratedTerminal"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Go: HTTP Server",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/server",
+      "args": [
+        "-config",
+        "configs/config.yml"
+      ],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Go: WebSocket Server",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/websocket-server",
+      "args": [
+        "-config",
+        "configs/config.yml"
+      ],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Debug Go App (Local)",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/server",
+      "args": [
+        "-config",
+        "${workspaceFolder}/configs/config.yml"
+      ],
+      "env": {
+        "ENVIRONMENT": "development",
+        "LOG_LEVEL": "debug"
+      },
+      "showLog": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug Go App (Test Config)",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/server",
+      "args": [
+        "-config",
+        "${workspaceFolder}/configs/config.test.yml"
+      ],
+      "env": {
+        "ENVIRONMENT": "test",
+        "LOG_LEVEL": "debug"
+      },
+      "showLog": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug Go Tests",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}",
+      "showLog": true,
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Dev: API + WS",
+      "configurations": [
+        "Go: HTTP Server",
+        "Go: WebSocket Server"
+      ],
+      "stopAll": true
+    }
+  ]
 }
