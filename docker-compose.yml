@@ -24,7 +24,7 @@ services:
   # Application
   app:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: peace_app
     restart: unless-stopped

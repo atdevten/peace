@@ -23,7 +23,7 @@ services:
   # Application with hot reload
   app:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile.dev
     container_name: peace_app
     restart: unless-stopped
@@ -62,7 +62,7 @@ services:
       - "8080:8080"
       - "2345:2345" # Delve debugger port
     volumes:
-      - .:/app
+      - ./backend:/app
       - go_cache:/go
     depends_on:
       postgres:

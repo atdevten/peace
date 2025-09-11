@@ -1,173 +1,85 @@
-.PHONY: help build run dev clean logs ps stop restart quotes-import quotes-import-fast quotes-dry-run quotes-import-zip quotes-import-zip-dry data-reset data-migrate data-seed test test-coverage db-connect db-backup clean-bin clean-logs logs-app logs-db logs-redis
+# Root Makefile - delegates to backend
+.PHONY: help dev run build test test-coverage clean health logs logs-app logs-db logs-redis docker-up docker-down docker-build docker-clean
 
-# Default target
-help:
-	@echo "Available commands:"
-	@echo "  build           - Build the application Docker image"
-	@echo "  run             - Run the full stack (production)"
-	@echo "  dev             - Run development environment with hot reload"
-	@echo "  clean           - Stop and remove all containers and volumes"
-	@echo "  stop            - Stop all services"
-	@echo "  restart         - Restart all services"
-	@echo "  health          - Check service health"
-	@echo ""
-	@echo "Quote management:"
-	@echo "  quotes-import-zip  - Import quotes from ZIP file containing CSV files"
-	@echo "  quotes-import-zip-dry - Test ZIP import without inserting to DB"
-	@echo ""
-	@echo "Data management:"
-	@echo "  data-reset         - Reset database (drop all data)"
-	@echo "  data-migrate       - Run database migrations"
-	@echo "  data-seed          - Seed database with sample data"
+help: ## Show this help message
+	@echo 'Usage: make [target]'
+	@echo ''
+	@echo 'Targets:'
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-# Build the application
-build: build-server build-websocket
-build-server:
-	@echo "Building HTTP server..."
-	@go build -o bin/server ./cmd/server
-build-websocket:
-	@echo "Building WebSocket server..."
-	@go build -o bin/websocket-server ./cmd/websocket-server
+# Development commands (delegate to backend)
+dev: ## Start development server with hot reload
+	@cd backend && $(MAKE) dev
 
-# Run production stack
-run:
+run: ## Start production server
+	@cd backend && $(MAKE) run
+
+build: ## Build the application
+	@cd backend && $(MAKE) build
+
+test: ## Run tests
+	@cd backend && $(MAKE) test
+
+test-coverage: ## Run tests with coverage
+	@cd backend && $(MAKE) test-coverage
+
+clean: ## Clean build artifacts
+	@cd backend && $(MAKE) clean
+
+# Health and monitoring
+health: ## Check application health
+	@cd backend && $(MAKE) health
+
+logs: ## Show all container logs
+	@cd backend && $(MAKE) logs
+
+logs-app: ## Show application logs
+	@cd backend && $(MAKE) logs-app
+
+logs-db: ## Show database logs
+	@cd backend && $(MAKE) logs-db
+
+logs-redis: ## Show Redis logs
+	@cd backend && $(MAKE) logs-redis
+
+# Docker commands (run from root since docker-compose files are here)
+docker-up: ## Start all services with Docker
 	docker-compose up -d
 
-# Run development environment
-dev: dev-server dev-websocket
-dev-server:
-	@echo "Starting HTTP server..."
-	@go run ./cmd/server/main.go -config configs/config.yml
-dev-websocket:
-	@echo "Starting WebSocket server..."
-	@go run ./cmd/websocket-server/main.go -config configs/config.yml
-
-# Stop all services
-stop:
+docker-down: ## Stop all Docker services
 	docker-compose down
-	docker-compose -f docker-compose.dev.yml down
 
-# Restart all services
-restart:
-	docker-compose restart
-	docker-compose -f docker-compose.dev.yml restart
+docker-build: ## Build Docker images
+	docker-compose build
 
-# Clean everything
-clean:
+docker-clean: ## Clean Docker resources
 	docker-compose down -v --remove-orphans
-	docker-compose -f docker-compose.dev.yml down -v --remove-orphans
 	docker system prune -f
 
-# Health check
-health:
-	@echo "Checking service health..."
-	@curl -f http://localhost:8080/health || echo "HTTP server is not healthy"
-	@curl -f http://localhost:8081/ws/health || echo "WebSocket server is not healthy"
-	@curl -f http://localhost:5432 || echo "PostgreSQL is not healthy"
-	@curl -f http://localhost:6380 || echo "Redis is not healthy"
+# Frontend commands
+web-dev: ## Start frontend development server
+	@cd web && npm run dev
 
-# ZIP file import commands
-quotes-import-zip:
-	@echo "Building quotes importer..."
-	@go build -o bin/quotes ./cmd/data-importer
-	@echo "Importing quotes from ZIP file..."
-	@if [ -z "$(FILE)" ]; then \
-		echo "Error: Please specify FILE parameter"; \
-		echo "Example: make quotes-import-zip FILE=quotes.zip"; \
-		exit 1; \
-	fi
-	@echo "Processing file: $(FILE)"
-	@./bin/quotes --config=configs/config.yml --file="$(FILE)" --workers=10 --batch-size=100
+web-build: ## Build frontend for production
+	@cd web && npm run build
 
-quotes-import-zip-dry:
-	@echo "Building quotes importer..."
-	@go build -o bin/quotes ./cmd/data-importer
-	@echo "Testing ZIP import (dry run)..."
-	@if [ -z "$(FILE)" ]; then \
-		echo "Error: Please specify FILE parameter"; \
-		echo "Example: make quotes-import-zip-dry FILE=quotes.zip"; \
-		exit 1; \
-	fi
-	@echo "Processing file: $(FILE)"
-	@./bin/quotes --config=configs/config.yml --file="$(FILE)" --dry-run --workers=5 --batch-size=50
-	
-# Data management commands
-data-reset:
-	@echo "⚠️  WARNING: This will delete ALL data from the database!"
-	@read -p "Are you sure? Type 'yes' to confirm: " confirm; \
-	if [ "$$confirm" = "yes" ]; then \
-		echo "Stopping services..."; \
-		docker-compose -f docker-compose.dev.yml down -v; \
-		echo "Removing database volume..."; \
-		docker volume rm peace_postgres_dev_data || true; \
-		echo "Starting fresh database..."; \
-		docker-compose -f docker-compose.dev.yml up -d postgres; \
-		echo "Waiting for database to be ready..."; \
-		sleep 10; \
-		echo "Running migrations..."; \
-		make data-migrate; \
-		echo "Database reset complete!"; \
-	else \
-		echo "Database reset cancelled."; \
-	fi
+web-install: ## Install frontend dependencies
+	@cd web && npm install
 
-data-migrate:
-	@echo "Running database migrations..."
-	@docker exec -it peace_postgres_dev psql -U postgres -d peace -c "SELECT version_id, is_applied, tstamp FROM goose_db_version ORDER BY version_id;" || \
-	(echo "No migrations found, running initial setup..." && \
-	docker exec -it peace_postgres_dev psql -U postgres -d peace -c "CREATE TABLE IF NOT EXISTS goose_db_version (version_id BIGINT PRIMARY KEY, is_applied BOOLEAN NOT NULL, tstamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP);")
-	@echo "Migrations completed!"
+# Full stack development
+full-dev: ## Start both backend and frontend in development mode
+	@echo "Starting backend..."
+	@cd backend && $(MAKE) dev &
+	@echo "Starting frontend..."
+	@cd web && npm run dev &
+	@echo "Both services started. Use Ctrl+C to stop."
 
-data-seed:
-	@echo "Seeding database with sample data..."
-	@if [ -f "quotes.csv" ]; then \
-		echo "Found quotes.csv, importing sample quotes..."; \
-		make quotes-import; \
-	else \
-		echo "No quotes.csv found. Please create a CSV file with quotes data."; \
-	fi
+# Migration commands (delegate to backend)
+migrate-up: ## Run database migrations
+	@cd backend && $(MAKE) migrate-up
 
-# Development utilities
-logs:
-	@docker-compose -f docker-compose.dev.yml logs -f
+migrate-down: ## Rollback database migrations
+	@cd backend && $(MAKE) migrate-down
 
-logs-app:
-	@docker-compose -f docker-compose.dev.yml logs -f app
-
-logs-db:
-	@docker-compose -f docker-compose.dev.yml logs -f postgres
-
-logs-redis:
-	@docker-compose -f docker-compose.dev.yml logs -f redis
-
-# Testing and validation
-test:
-	@echo "Running tests..."
-	@go test ./...
-
-test-coverage:
-	@echo "Running tests with coverage..."
-	@go test -coverprofile=coverage.out ./...
-	@go tool cover -html=coverage.out -o coverage.html
-	@echo "Coverage report generated: coverage.html"
-
-# Database utilities
-db-connect:
-	@echo "Connecting to PostgreSQL database..."
-	@docker exec -it peace_postgres_dev psql -U postgres -d peace
-
-db-backup:
-	@echo "Creating database backup..."
-	@docker exec peace_postgres_dev pg_dump -U postgres -d peace > backup_$(shell date +%Y%m%d_%H%M%S).sql
-	@echo "Backup created: backup_$(shell date +%Y%m%d_%H%M%S).sql"
-
-# Cleanup utilities
-clean-bin:
-	@echo "Cleaning binary files..."
-	@rm -rf bin/
-	@echo "Binary files cleaned!"
-
-clean-logs:
-	@echo "Cleaning log files..."
-	@docker system prune -f
-	@echo "Log files cleaned!"
+migrate-status: ## Show migration status
+	@cd backend && $(MAKE) migrate-status
