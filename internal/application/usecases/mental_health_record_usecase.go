@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/atdevten/peace/internal/application/commands"
 	"github.com/atdevten/peace/internal/domain/entities"
@@ -308,17 +309,31 @@ func calculateStreakFromDates(dates []string) int {
 		return 0
 	}
 
+	// Get current date in UTC using timeutil
+	now := time.Now().UTC()
+	today := timeutil.FormatDate(now)
+	yesterday := timeutil.FormatDate(now.AddDate(0, 0, -1))
+
+	// Parse the most recent entry date
+	mostRecentDate := dates[0] // dates are in DESC order
+
+	// Check if the most recent entry is today or yesterday
+	// If not, streak is broken
+	if mostRecentDate != today && mostRecentDate != yesterday {
+		return 0
+	}
+
 	streak := 1
 
 	for i := 1; i < len(dates); i++ {
-		// Parse current date (more recent) - now all dates are YYYY-MM-DD format from GORM
-		current, err := timeutil.ParseTime(dates[i-1] + "T00:00:00Z")
+		// Parse current date (more recent) using timeutil
+		current, err := timeutil.ParseDate(dates[i-1])
 		if err != nil {
 			break
 		}
 
-		// Parse next date (going backwards in time)
-		next, err := timeutil.ParseTime(dates[i] + "T00:00:00Z")
+		// Parse next date (going backwards in time) using timeutil
+		next, err := timeutil.ParseDate(dates[i])
 		if err != nil {
 			break
 		}
@@ -327,7 +342,7 @@ func calculateStreakFromDates(dates []string) int {
 		expectedPrevDay := current.AddDate(0, 0, -1)
 
 		// Check if dates are consecutive (next date should be 1 day before current)
-		if next.Format("2006-01-02") == expectedPrevDay.Format("2006-01-02") {
+		if timeutil.FormatDate(next) == timeutil.FormatDate(expectedPrevDay) {
 			streak++
 		} else {
 			// Gap found, stop counting

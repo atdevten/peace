@@ -21,9 +21,11 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
   const countTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const retryAttemptRef = useRef<number>(0);
   const lastTokenRef = useRef<string | null>(null);
-  const tokenCheckTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const tokenCheckTimerRef = useRef<ReturnType<typeof setInterval> | null>(
+    null
+  );
 
-  function applyTimers(ws: WebSocket, opts: { hidden: boolean }) {
+  function applyTimers(ws: WebSocket, opts: {hidden: boolean;}) {
     // Ping interval
     if (pingTimerRef.current) clearInterval(pingTimerRef.current);
     const pingMs = opts.hidden ? 30000 : 10000;
@@ -44,7 +46,9 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
     }
   }
 
-  function isAmountMsg(msg: unknown): msg is { type: "amount_online_users"; data: { count: number } } {
+  function isAmountMsg(
+  msg: unknown)
+  : msg is {type: "amount_online_users";data: {count: number;};} {
     if (typeof msg !== "object" || msg === null) return false;
     const obj = msg as Record<string, unknown>;
     if (obj["type"] !== "amount_online_users") return false;
@@ -55,7 +59,8 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
   }
 
   useEffect(() => {
-    const url = wsUrl || process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8081/ws";
+    const url =
+    wsUrl || process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8081/ws";
     const token = Cookies.get("access_token");
     if (!token) {
       setError("Missing access token");
@@ -83,10 +88,9 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
             const parsed: unknown = JSON.parse(evt.data);
             if (isAmountMsg(parsed)) setCount(parsed.data.count);
           } catch {
-            // ignore parse errors
-          }
-        };
 
+            // ignore parse errors
+          }};
         ws.onerror = () => {
           setError("WebSocket error");
         };
@@ -107,7 +111,8 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
             const baseDelay = 2000; // 2s
             const maxDelay = 30000; // 30s cap
             const jitter = Math.floor(Math.random() * 1000); // 0-1s jitter
-            const delay = Math.min(maxDelay, baseDelay * Math.pow(2, attempt)) + jitter;
+            const delay =
+            Math.min(maxDelay, baseDelay * Math.pow(2, attempt)) + jitter;
             reconnectTimerRef.current = setTimeout(() => {
               reconnectTimerRef.current = null;
               retryAttemptRef.current = Math.min(attempt + 1, 10);
@@ -180,14 +185,13 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
   return (
     <span
       className={
-        className ||
-        "inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700"
+      className ||
+      "inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700"
       }
       title={connected ? "WebSocket connected" : error || "Connecting..."}
-    >
+      data-oid=":-napwy">
+
       {count}
-    </span>
-  );
+    </span>);
+
 }
-
-

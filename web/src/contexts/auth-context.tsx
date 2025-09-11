@@ -1,9 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
-import { apiService } from '@/lib/api';
-import { User, LoginRequest, RegisterRequest } from '@/lib/types';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import { apiService } from "@/lib/api";
+import { User, LoginRequest, RegisterRequest } from "@/lib/types";
 
 interface AuthContextType {
   user: User | null;
@@ -17,7 +17,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: {children: React.ReactNode;}) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -26,8 +26,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Check if user is authenticated on mount
   useEffect(() => {
     const initAuth = async () => {
-      const token = Cookies.get('access_token');
-      
+      const token = Cookies.get("access_token");
+
       if (token) {
         try {
           const userData = await apiService.getCurrentUser();
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
       }
-      
+
       setLoading(false);
     };
 
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // After successful registration, log the user in
       await login({
         email: userData.email,
-        password: userData.password,
+        password: userData.password
       });
     } catch (error) {
       throw error;
@@ -94,20 +94,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loginWithGoogle,
     register,
     logout,
-    isAuthenticated,
+    isAuthenticated
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={value} data-oid="9-fbk35">
       {children}
-    </AuthContext.Provider>
-  );
+    </AuthContext.Provider>);
+
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

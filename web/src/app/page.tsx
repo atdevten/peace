@@ -1,16 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { ProtectedRoute } from '@/components/protected-route';
-import { Navigation } from '@/components/navigation';
-import { DailyQuote } from '@/components/daily-quote';
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { ProtectedRoute } from "@/components/protected-route";
+import { Navigation } from "@/components/navigation";
+import { DailyQuote } from "@/components/daily-quote";
 import { useStreak } from "@/hooks/use-streak";
-import { useMentalHealthRecords, useMentalHealthHeatmap } from '@/hooks/use-mental-health-records';
-import { MentalHealthRecord } from '@/lib/types';
-import { BuyMeACoffee } from '@/components/buy-me-coffee';
-import { RecordDetailModal } from '../components/record-detail-modal';
-import OnlineUsersCount from '@/components/online-users-count';
+import {
+  useMentalHealthRecords,
+  useMentalHealthHeatmap } from
+"@/hooks/use-mental-health-records";
+import { MentalHealthRecord } from "@/lib/types";
+import { BuyMeACoffee } from "@/components/buy-me-coffee";
+import { RecordDetailModal } from "../components/record-detail-modal";
+import OnlineUsersCount from "@/components/online-users-count";
 
 type HabitKey =
 "meditate" |
@@ -69,161 +72,324 @@ function formatDate(d: string | Date) {
 function MoodPicker({
   value,
   onChange
+
+
+
 }: {value: CheckIn["mood"];onChange: (m: CheckIn["mood"]) => void;}) {
   const moods = [
-    { v: 1, label: "Rough Day", emoji: "😣", color: "from-rose-500/40 to-pink-500/40", message: "It's okay to have tough days. Tomorrow will be better! 🌅" },
-    { v: 2, label: "Struggling", emoji: "😞", color: "from-orange-400/40 to-amber-400/40", message: "You're doing your best. That's what matters! 💪" },
-    { v: 3, label: "Down", emoji: "😕", color: "from-amber-400/40 to-yellow-400/40", message: "Small steps forward are still progress! 🚶‍♂️" },
-    { v: 4, label: "Meh", emoji: "😟", color: "from-yellow-400/40 to-lime-400/40", message: "You've got this! Things will improve! ✨" },
-    { v: 5, label: "Okay", emoji: "😐", color: "from-lime-400/40 to-emerald-400/40", message: "Steady as you go! You're doing great! 🌟" },
-    { v: 6, label: "Pretty Good", emoji: "🙂", color: "from-emerald-400/40 to-teal-400/40", message: "Nice! Keep that positive energy flowing! 🌊" },
-    { v: 7, label: "Good", emoji: "😊", color: "from-teal-400/40 to-cyan-400/40", message: "Excellent! You're shining today! ✨" },
-    { v: 8, label: "Great", emoji: "😄", color: "from-cyan-400/40 to-blue-400/40", message: "Amazing! You're absolutely crushing it! 🚀" },
-    { v: 9, label: "Fantastic", emoji: "😁", color: "from-blue-400/40 to-indigo-400/40", message: "Incredible! You're unstoppable! 💫" },
-    { v: 10, label: "Perfect", emoji: "🤩", color: "from-indigo-400/40 to-purple-400/40", message: "Absolutely perfect! You're a star! ⭐" }
-  ] as const;
+  {
+    v: 1,
+    label: "Rough Day",
+    emoji: "😣",
+    color: "from-rose-500/40 to-pink-500/40",
+    message: "It's okay to have tough days. Tomorrow will be better! 🌅"
+  },
+  {
+    v: 2,
+    label: "Struggling",
+    emoji: "😞",
+    color: "from-orange-400/40 to-amber-400/40",
+    message: "You're doing your best. That's what matters! 💪"
+  },
+  {
+    v: 3,
+    label: "Down",
+    emoji: "😕",
+    color: "from-amber-400/40 to-yellow-400/40",
+    message: "Small steps forward are still progress! 🚶‍♂️"
+  },
+  {
+    v: 4,
+    label: "Meh",
+    emoji: "😟",
+    color: "from-yellow-400/40 to-lime-400/40",
+    message: "You've got this! Things will improve! ✨"
+  },
+  {
+    v: 5,
+    label: "Okay",
+    emoji: "😐",
+    color: "from-lime-400/40 to-emerald-400/40",
+    message: "Steady as you go! You're doing great! 🌟"
+  },
+  {
+    v: 6,
+    label: "Pretty Good",
+    emoji: "🙂",
+    color: "from-emerald-400/40 to-teal-400/40",
+    message: "Nice! Keep that positive energy flowing! 🌊"
+  },
+  {
+    v: 7,
+    label: "Good",
+    emoji: "😊",
+    color: "from-teal-400/40 to-cyan-400/40",
+    message: "Excellent! You're shining today! ✨"
+  },
+  {
+    v: 8,
+    label: "Great",
+    emoji: "😄",
+    color: "from-cyan-400/40 to-blue-400/40",
+    message: "Amazing! You're absolutely crushing it! 🚀"
+  },
+  {
+    v: 9,
+    label: "Fantastic",
+    emoji: "😁",
+    color: "from-blue-400/40 to-indigo-400/40",
+    message: "Incredible! You're unstoppable! 💫"
+  },
+  {
+    v: 10,
+    label: "Perfect",
+    emoji: "🤩",
+    color: "from-indigo-400/40 to-purple-400/40",
+    message: "Absolutely perfect! You're a star! ⭐"
+  }] as
+  const;
 
-  const selectedMood = moods.find(m => m.v === value);
+  const selectedMood = moods.find((m) => m.v === value);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-oid="_zql08l">
       {/* Encouraging message */}
-      {selectedMood && (
-        <div className={`text-center p-3 rounded-xl bg-gradient-to-r ${selectedMood.color.replace('/40', '/15')} border border-white/20`}>
-          <p className="text-sm text-white font-medium">{selectedMood.message}</p>
+      {selectedMood &&
+      <div
+        className={`text-center p-3 rounded-xl bg-gradient-to-r ${selectedMood.color.replace("/40", "/15")} border border-white/20`}
+        data-oid="w3x82kj">
+
+          <p className="text-sm text-white font-medium" data-oid="21-7uot">
+            {selectedMood.message}
+          </p>
         </div>
-      )}
-      
+      }
+
       {/* Mood buttons */}
-      <div className="flex items-center gap-2 flex-wrap justify-center">
-        {moods.map((m) => (
-          <button
-            key={m.v}
-            onClick={() => onChange(m.v as CheckIn["mood"])}
-            className={`group relative rounded-xl p-3 md:p-4 border transition-all duration-300 transform hover:scale-110 ${
-              value === m.v 
-                ? "border-white/60 bg-gradient-to-br from-white/15 to-white/5 shadow-lg shadow-emerald-500/20 scale-110" 
-                : "border-white/10 hover:border-white/30 hover:bg-white/5 hover:shadow-lg"
-            }`}
-            aria-pressed={value === m.v}
-            aria-label={`${m.label} (${m.v})`}
-          >
+      <div
+        className="flex items-center gap-2 flex-wrap justify-center"
+        data-oid="vt0-c1p">
+
+        {moods.map((m) =>
+        <button
+          key={m.v}
+          onClick={() => onChange(m.v as CheckIn["mood"])}
+          className={`group relative rounded-xl p-3 md:p-4 border transition-all duration-300 transform hover:scale-110 ${
+          value === m.v ?
+          "border-white/60 bg-gradient-to-br from-white/15 to-white/5 shadow-lg shadow-emerald-500/20 scale-110" :
+          "border-white/10 hover:border-white/30 hover:bg-white/5 hover:shadow-lg"}`
+          }
+          aria-pressed={value === m.v}
+          aria-label={`${m.label} (${m.v})`}
+          data-oid="vs00997">
+
             <span
-              className={`text-xl md:text-2xl transition-transform duration-300 ${
-                value === m.v ? "scale-110" : "group-hover:scale-110"
-              }`}
-              role="img"
-              aria-hidden
-            >
+            className={`text-xl md:text-2xl transition-transform duration-300 ${
+            value === m.v ? "scale-110" : "group-hover:scale-110"}`
+            }
+            role="img"
+            aria-hidden
+            data-oid="v:el3f-">
+
               {m.emoji}
             </span>
             <span
-              className={`absolute -bottom-2 left-1/2 -translate-x-1/2 h-2 w-8 rounded-full bg-gradient-to-r ${m.color} ${
-                value === m.v ? "opacity-100" : "opacity-0 group-hover:opacity-80"
-              } transition-all duration-300`}
-            />
+            className={`absolute -bottom-2 left-1/2 -translate-x-1/2 h-2 w-8 rounded-full bg-gradient-to-r ${m.color} ${
+            value === m.v ?
+            "opacity-100" :
+            "opacity-0 group-hover:opacity-80"} transition-all duration-300`
+            }
+            data-oid="axk7.a-" />
+
           </button>
-        ))}
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 function EnergyPicker({
   value,
   onChange
+
+
+
 }: {value: number;onChange: (n: number) => void;}) {
   const energyLevels = [
-    { v: 1, emoji: "😴", label: "Need Rest", color: "from-indigo-400/40 to-purple-400/40", message: "Rest is productive! Take care of yourself! 🛏️" },
-    { v: 2, emoji: "😪", label: "Low Battery", color: "from-blue-400/40 to-indigo-400/40", message: "Small energy is still energy! 🔋" },
-    { v: 3, emoji: "😑", label: "Getting There", color: "from-cyan-400/40 to-blue-400/40", message: "You're building momentum! 🚶‍♂️" },
-    { v: 4, emoji: "😐", label: "Steady", color: "from-teal-400/40 to-cyan-400/40", message: "Consistent energy is powerful! ⚡" },
-    { v: 5, emoji: "🙂", label: "Balanced", color: "from-emerald-400/40 to-teal-400/40", message: "Perfect balance! You're in the zone! 🎯" },
-    { v: 6, emoji: "😊", label: "Energized", color: "from-lime-400/40 to-emerald-400/40", message: "Great energy! Keep it flowing! 🌊" },
-    { v: 7, emoji: "😄", label: "Powerful", color: "from-yellow-400/40 to-lime-400/40", message: "You're unstoppable! 💪" },
-    { v: 8, emoji: "😁", label: "Supercharged", color: "from-amber-400/40 to-yellow-400/40", message: "Incredible energy! You're on fire! 🔥" },
-    { v: 9, emoji: "🤩", label: "Unstoppable", color: "from-orange-400/40 to-amber-400/40", message: "Absolutely unstoppable! 🚀" },
-    { v: 10, emoji: "🚀", label: "Maximum Power", color: "from-rose-400/40 to-pink-400/40", message: "MAXIMUM POWER! You're incredible! ⭐" }
-  ];
+  {
+    v: 1,
+    emoji: "😴",
+    label: "Need Rest",
+    color: "from-indigo-400/40 to-purple-400/40",
+    message: "Rest is productive! Take care of yourself! 🛏️"
+  },
+  {
+    v: 2,
+    emoji: "😪",
+    label: "Low Battery",
+    color: "from-blue-400/40 to-indigo-400/40",
+    message: "Small energy is still energy! 🔋"
+  },
+  {
+    v: 3,
+    emoji: "😑",
+    label: "Getting There",
+    color: "from-cyan-400/40 to-blue-400/40",
+    message: "You're building momentum! 🚶‍♂️"
+  },
+  {
+    v: 4,
+    emoji: "😐",
+    label: "Steady",
+    color: "from-teal-400/40 to-cyan-400/40",
+    message: "Consistent energy is powerful! ⚡"
+  },
+  {
+    v: 5,
+    emoji: "🙂",
+    label: "Balanced",
+    color: "from-emerald-400/40 to-teal-400/40",
+    message: "Perfect balance! You're in the zone! 🎯"
+  },
+  {
+    v: 6,
+    emoji: "😊",
+    label: "Energized",
+    color: "from-lime-400/40 to-emerald-400/40",
+    message: "Great energy! Keep it flowing! 🌊"
+  },
+  {
+    v: 7,
+    emoji: "😄",
+    label: "Powerful",
+    color: "from-yellow-400/40 to-lime-400/40",
+    message: "You're unstoppable! 💪"
+  },
+  {
+    v: 8,
+    emoji: "😁",
+    label: "Supercharged",
+    color: "from-amber-400/40 to-yellow-400/40",
+    message: "Incredible energy! You're on fire! 🔥"
+  },
+  {
+    v: 9,
+    emoji: "🤩",
+    label: "Unstoppable",
+    color: "from-orange-400/40 to-amber-400/40",
+    message: "Absolutely unstoppable! 🚀"
+  },
+  {
+    v: 10,
+    emoji: "🚀",
+    label: "Maximum Power",
+    color: "from-rose-400/40 to-pink-400/40",
+    message: "MAXIMUM POWER! You're incredible! ⭐"
+  }];
 
-  const selectedEnergy = energyLevels.find(l => l.v === value);
+
+  const selectedEnergy = energyLevels.find((l) => l.v === value);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-oid="p6lrj3g">
       {/* Energy level display with message */}
-      <div className="flex items-center justify-between text-sm text-gray-300">
-        <span>Energy Level</span>
-        <div className="flex items-center gap-2">
-          <span className="text-emerald-300 font-medium">{value}/10</span>
-          <span className="text-lg">{selectedEnergy?.emoji}</span>
+      <div
+        className="flex items-center justify-between text-sm text-gray-300"
+        data-oid="-_0w5bm">
+
+        <span data-oid="wfc0kbn">Energy Level</span>
+        <div className="flex items-center gap-2" data-oid="ypqyleg">
+          <span className="text-emerald-300 font-medium" data-oid="qg6qaa2">
+            {value}/10
+          </span>
+          <span className="text-lg" data-oid="_qr2laj">
+            {selectedEnergy?.emoji}
+          </span>
         </div>
       </div>
 
       {/* Encouraging message */}
-      {selectedEnergy && (
-        <div className={`text-center p-3 rounded-xl bg-gradient-to-r ${selectedEnergy.color.replace('/40', '/15')} border border-white/20`}>
-          <p className="text-sm text-white font-medium">{selectedEnergy.message}</p>
+      {selectedEnergy &&
+      <div
+        className={`text-center p-3 rounded-xl bg-gradient-to-r ${selectedEnergy.color.replace("/40", "/15")} border border-white/20`}
+        data-oid="-2er2q4">
+
+          <p className="text-sm text-white font-medium" data-oid="7028o2h">
+            {selectedEnergy.message}
+          </p>
         </div>
-      )}
+      }
 
       {/* Animated energy bars */}
-      <div className="flex items-end gap-1 h-20 p-4 rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.02] to-white/[0.01]">
-        {energyLevels.map((level) => (
-          <button
-            key={level.v}
-            onClick={() => onChange(level.v)}
-            className={`flex-1 rounded-md transition-all duration-500 hover:scale-110 ${
-              value >= level.v
-                ? `bg-gradient-to-t ${level.color} opacity-100 shadow-lg`
-                : "bg-white/10 opacity-40 hover:opacity-60"
-            }`}
-            style={{
-              height: `${(level.v + 1) / 11 * 100}%`,
-              minHeight: "12px"
-            }}
-            title={`${level.label} (${level.v})`}
-          />
-        ))}
+      <div
+        className="flex items-end gap-1 h-20 p-4 rounded-xl border border-white/10 bg-gradient-to-br from-white/[0.02] to-white/[0.01]"
+        data-oid="idiv8rb">
+
+        {energyLevels.map((level) =>
+        <button
+          key={level.v}
+          onClick={() => onChange(level.v)}
+          className={`flex-1 rounded-md transition-all duration-500 hover:scale-110 ${
+          value >= level.v ?
+          `bg-gradient-to-t ${level.color} opacity-100 shadow-lg` :
+          "bg-white/10 opacity-40 hover:opacity-60"}`
+          }
+          style={{
+            height: `${(level.v + 1) / 11 * 100}%`,
+            minHeight: "12px"
+          }}
+          title={`${level.label} (${level.v})`}
+          data-oid="7kuvckz" />
+
+        )}
       </div>
 
       {/* Interactive emoji selector */}
-      <div className="flex items-center justify-center gap-2 flex-wrap">
-        {energyLevels
-          .filter((_, i) => i % 2 === 0)
-          .map((level) => (
-            <button
-              key={level.v}
-              onClick={() => onChange(level.v)}
-              className={`group relative p-3 rounded-xl border transition-all duration-300 transform hover:scale-110 ${
-                value === level.v
-                  ? "border-emerald-400/60 bg-gradient-to-br from-emerald-500/20 to-emerald-400/10 shadow-lg shadow-emerald-500/20 scale-110"
-                  : "border-white/10 hover:border-white/30 hover:bg-white/5"
-              }`}
-              title={level.label}
-            >
+      <div
+        className="flex items-center justify-center gap-2 flex-wrap"
+        data-oid="rt5b12v">
+
+        {energyLevels.
+        filter((_, i) => i % 2 === 0).
+        map((level) =>
+        <button
+          key={level.v}
+          onClick={() => onChange(level.v)}
+          className={`group relative p-3 rounded-xl border transition-all duration-300 transform hover:scale-110 ${
+          value === level.v ?
+          "border-emerald-400/60 bg-gradient-to-br from-emerald-500/20 to-emerald-400/10 shadow-lg shadow-emerald-500/20 scale-110" :
+          "border-white/10 hover:border-white/30 hover:bg-white/5"}`
+          }
+          title={level.label}
+          data-oid="b198b-v">
+
               <span
-                className={`text-xl transition-transform duration-300 ${
-                  value === level.v ? "scale-110" : "group-hover:scale-110"
-                }`}
-                role="img"
-                aria-hidden
-              >
+            className={`text-xl transition-transform duration-300 ${
+            value === level.v ? "scale-110" : "group-hover:scale-110"}`
+            }
+            role="img"
+            aria-hidden
+            data-oid="12q.1ps">
+
                 {level.emoji}
               </span>
               <span
-                className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-6 rounded-full bg-gradient-to-r ${level.color} ${
-                  value === level.v ? "opacity-100" : "opacity-0 group-hover:opacity-60"
-                } transition-all duration-300`}
-              />
+            className={`absolute -bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-6 rounded-full bg-gradient-to-r ${level.color} ${
+            value === level.v ?
+            "opacity-100" :
+            "opacity-0 group-hover:opacity-60"} transition-all duration-300`
+            }
+            data-oid="4w51fh2" />
+
             </button>
-          ))}
+        )}
       </div>
 
-      <div className="text-center text-xs text-gray-400">
+      <div className="text-center text-xs text-gray-400" data-oid=".jk0rj.">
         {selectedEnergy?.label || "Select your energy level"}
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 // Removed unused Slider component
@@ -414,45 +580,56 @@ function useStats(history: CheckIn[]) {
     return {
       avg7: count ? Math.round(moodSum / count * 10) / 10 : 0,
       entries7: count
-    };  }, [history]);
+    };
+  }, [history]);
 }
 export default function Page() {
-  const { records, loading: recordsLoading, createRecord } = useMentalHealthRecords();
-  
+  const {
+    records,
+    loading: recordsLoading,
+    createRecord
+  } = useMentalHealthRecords();
+
   // Convert API records to local CheckIn format for compatibility with existing UI
   const history = useMemo(() => {
     if (!records || !Array.isArray(records)) {
       return [];
     }
-    
-    return records.map((record: MentalHealthRecord): CheckIn => ({
-      id: record.id,
-      date: record.created_at,
-      mood: record.happy_level as CheckIn["mood"],
-      energy: record.energy_level,
-      tags: [], // Ignore tags for now as requested
-      notes: record.notes || "",
-      habits: {
-        meditate: false,
-        walk: false,
-        hydrate: false,
-        journal: false,
-        socialize: false,
-        therapy: false
-      }, // Default habits since backend doesn't have this yet
-      isPublic: record.status === "public"
-    }));
+
+    return records.map(
+      (record: MentalHealthRecord): CheckIn => ({
+        id: record.id,
+        date: record.created_at,
+        mood: record.happy_level as CheckIn["mood"],
+        energy: record.energy_level,
+        tags: [], // Ignore tags for now as requested
+        notes: record.notes || "",
+        habits: {
+          meditate: false,
+          walk: false,
+          hydrate: false,
+          journal: false,
+          socialize: false,
+          therapy: false
+        }, // Default habits since backend doesn't have this yet
+        isPublic: record.status === "public"
+      })
+    );
   }, [records]);
-  
+
   // Get streak from server API
-  const { streak, loading: streakLoading, refetch: refetchStreak } = useStreak();
+  const {
+    streak,
+    loading: streakLoading,
+    refetch: refetchStreak
+  } = useStreak();
   const stats = useStats(history);
 
   // Check if user has already checked in today (Option 3: Smart state)
   const todayEntry = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10);
-    return history.find(entry => 
-      new Date(entry.date).toISOString().slice(0, 10) === today
+    return history.find(
+      (entry) => new Date(entry.date).toISOString().slice(0, 10) === today
     );
   }, [history]);
 
@@ -472,11 +649,11 @@ export default function Page() {
     socialize: false,
     therapy: false
   });
-  
+
   // Loading and error states for save operation
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  
+
   // Modal state for record details
   const [selectedRecord, setSelectedRecord] = useState<CheckIn | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -517,7 +694,7 @@ export default function Page() {
   async function saveCheckIn() {
     setIsSaving(true);
     setSaveError(null);
-    
+
     try {
       // Map frontend data to backend API format
       const recordData = {
@@ -526,7 +703,7 @@ export default function Page() {
         notes: notes.trim() || undefined, // Send undefined if empty to make it null on backend
         status: isPublic ? "public" : "private"
       };
-      
+
       await createRecord(recordData);
       // Refresh streak after creating new record
       refetchStreak();
@@ -535,7 +712,8 @@ export default function Page() {
       setIsCheckInExpanded(false);
       // Refetch to ensure UI is in sync (createRecord should update the list automatically)
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to save check-in';
+      const errorMessage =
+      error instanceof Error ? error.message : "Failed to save check-in";
       setSaveError(errorMessage);
     } finally {
       setIsSaving(false);
@@ -545,265 +723,475 @@ export default function Page() {
   const last5 = history.slice(0, 5);
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen w-full bg-[radial-gradient(1200px_600px_at_100%_-10%,rgba(147,51,234,0.12),transparent_60%),radial-gradient(800px_400px_at_0%_0%,rgba(59,130,246,0.10),transparent_50%),radial-gradient(600px_300px_at_50%_50%,rgba(236,72,153,0.08),transparent_70%)] bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-purple-100 relative">
-        <Navigation />
-        <main className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+    <ProtectedRoute data-oid="g8urndm">
+      <div
+        className="min-h-screen w-full bg-[radial-gradient(1200px_600px_at_100%_-10%,rgba(147,51,234,0.12),transparent_60%),radial-gradient(800px_400px_at_0%_0%,rgba(59,130,246,0.10),transparent_50%),radial-gradient(600px_300px_at_50%_50%,rgba(236,72,153,0.08),transparent_70%)] bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-purple-100 relative"
+        data-oid="jqafpcf">
+
+        <Navigation data-oid="2uwq1dt" />
+        <main
+          className="mx-auto max-w-6xl px-4 py-10 md:py-14"
+          data-oid=".r2msdl">
+
           {/* Header */}
-          <header className="mb-8 md:mb-10">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
+          <header className="mb-8 md:mb-10" data-oid="uyek281">
+            <div
+              className="flex items-start justify-between gap-4"
+              data-oid="nc33dz6">
+
+              <div data-oid="jsi7xo0">
+                <h1
+                  className="text-3xl md:text-4xl font-semibold tracking-tight"
+                  data-oid="8hnavk2">
+
                   Mindful — Track, Care, Grow
                 </h1>
               </div>
-              <div className="hidden md:flex items-center gap-2 text-sm text-slate-400">
-                <div className="rounded-xl border border-white/20 px-3 py-2 bg-gradient-to-br from-white/[0.08] to-purple-500/[0.02]">
-                  <span className="text-slate-200">7‑day avg</span>
-                  <span className="ml-2 text-purple-300 font-medium">
+              <div
+                className="hidden md:flex items-center gap-2 text-sm text-slate-400"
+                data-oid="5f8zo0k">
+
+                <div
+                  className="rounded-xl border border-white/20 px-3 py-2 bg-gradient-to-br from-white/[0.08] to-purple-500/[0.02]"
+                  data-oid=":4w9eph">
+
+                  <span className="text-slate-200" data-oid="pml6jez">
+                    7‑day avg
+                  </span>
+                  <span
+                    className="ml-2 text-purple-300 font-medium"
+                    data-oid="9zxi:od">
+
                     {stats.avg7 || "–"}
                   </span>
                 </div>
-                <div className="rounded-xl border border-white/20 px-3 py-2 bg-gradient-to-br from-white/[0.08] to-blue-500/[0.02]">
-                  <span className="text-slate-200">Streak</span>
-                  <span className="ml-2 text-blue-300 font-medium">
+                <div
+                  className="rounded-xl border border-white/20 px-3 py-2 bg-gradient-to-br from-white/[0.08] to-blue-500/[0.02]"
+                  data-oid=".0fo8tj">
+
+                  <span className="text-slate-200" data-oid="1y2z:dm">
+                    Streak
+                  </span>
+                  <span
+                    className="ml-2 text-blue-300 font-medium"
+                    data-oid="_wxr7g2">
+
                     {streakLoading ? "..." : streak}d
                   </span>
                 </div>
-                <div className="rounded-xl border border-white/20 px-3 py-2 bg-gradient-to-br from-white/[0.08] to-green-500/[0.02]">
-                  <span className="text-slate-200">Online</span>
-                  <span className="ml-2">
-                    <OnlineUsersCount />
+                <div
+                  className="rounded-xl border border-white/20 px-3 py-2 bg-gradient-to-br from-white/[0.08] to-green-500/[0.02]"
+                  data-oid="qxen1e7">
+
+                  <span className="text-slate-200" data-oid="1i4l02p">
+                    Online
+                  </span>
+                  <span className="ml-2" data-oid="x-09cxy">
+                    <OnlineUsersCount data-oid="tn16d_t" />
                   </span>
                 </div>
-                <BuyMeACoffee username="svie4mv" compact={true} />
+                <BuyMeACoffee
+                  username="svie4mv"
+                  compact={true}
+                  data-oid="87odbi9" />
+
               </div>
             </div>
           </header>
 
           {/* Mobile: Online users count */}
-          <div className="md:hidden mb-4 flex items-center gap-2 text-sm text-slate-400">
-            <span className="text-slate-200">Online</span>
-            <OnlineUsersCount />
+          <div
+            className="md:hidden mb-4 flex items-center gap-2 text-sm text-slate-400"
+            data-oid="n84.t.0">
+
+            <span className="text-slate-200" data-oid="ejl07te">
+              Online
+            </span>
+            <OnlineUsersCount data-oid="1z9bxco" />
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5">
+          <div
+            className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5"
+            data-oid="ej95n6t">
+
             {/* Left: Check-in */}
-            <div className="lg:col-span-2 space-y-4 md:space-y-5">
+            <div
+              className="lg:col-span-2 space-y-4 md:space-y-5"
+              data-oid="me12_c2">
+
               <Card
                 title="Today's check‑in"
                 subtitle={
-                  todayEntry 
-                    ? `Already checked in today (Mood: ${todayEntry.mood}/10, Energy: ${todayEntry.energy}/10)` 
-                    : isCheckInExpanded 
-                      ? "How are you feeling right now?" 
-                      : "Click to expand and record your daily check-in"
+                todayEntry ?
+                `Already checked in today (Mood: ${todayEntry.mood}/10, Energy: ${todayEntry.energy}/10)` :
+                isCheckInExpanded ?
+                "How are you feeling right now?" :
+                "Click to expand and record your daily check-in"
                 }
                 right={
-                  <button
-                    onClick={() => setIsCheckInExpanded(!isCheckInExpanded)}
-                    className="p-2 rounded-lg border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all"
-                    aria-label={isCheckInExpanded ? "Collapse check-in form" : "Expand check-in form"}
-                  >
-                    {isCheckInExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                <button
+                  onClick={() => setIsCheckInExpanded(!isCheckInExpanded)}
+                  className="p-2 rounded-lg border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all"
+                  aria-label={
+                  isCheckInExpanded ?
+                  "Collapse check-in form" :
+                  "Expand check-in form"
+                  }
+                  data-oid="q00g434">
+
+                    {isCheckInExpanded ?
+                  <ChevronUp className="w-4 h-4" data-oid="xzq:3m2" /> :
+
+                  <ChevronDown className="w-4 h-4" data-oid="winshz0" />
+                  }
                   </button>
                 }
-              >
-                {isCheckInExpanded && (
-                  <div className="flex flex-col gap-4">
-                    <MoodPicker value={mood} onChange={setMood} />
-                    <EnergyPicker value={energy} onChange={setEnergy} />
-                    <div className="flex flex-col gap-2">
-                      <span className="text-sm text-slate-200">Tags</span>
-                      <TagPicker selected={tags} onToggle={toggleTag} />
+                data-oid="k:funjd">
+
+                {isCheckInExpanded &&
+                <div className="flex flex-col gap-4" data-oid="3qnw49o">
+                    <MoodPicker
+                    value={mood}
+                    onChange={setMood}
+                    data-oid="8zg89e_" />
+
+
+                    <EnergyPicker
+                    value={energy}
+                    onChange={setEnergy}
+                    data-oid="g0obs17" />
+
+
+                    <div className="flex flex-col gap-2" data-oid="cxj_df-">
+                      <span
+                      className="text-sm text-slate-200"
+                      data-oid="x0h.cic">
+
+                        Tags
+                      </span>
+                      <TagPicker
+                      selected={tags}
+                      onToggle={toggleTag}
+                      data-oid="c1.v62_" />
+
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <label htmlFor="notes" className="text-sm text-slate-200">Notes</label>
+                    <div className="flex flex-col gap-2" data-oid="c5i0tkt">
+                      <label
+                      htmlFor="notes"
+                      className="text-sm text-slate-200"
+                      data-oid="lxk8ew2">
+
+                        Notes
+                      </label>
                       <textarea
-                        id="notes"
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Optional journal…"
-                        rows={3}
-                        className="w-full resize-none rounded-xl border border-gray-600 bg-gray-800 px-3 py-2 text-gray-100 placeholder:text-gray-400 focus:border-gray-500 focus:outline-none"
-                      />
+                      id="notes"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Optional journal…"
+                      rows={3}
+                      className="w-full resize-none rounded-xl border border-gray-600 bg-gray-800 px-3 py-2 text-gray-100 placeholder:text-gray-400 focus:border-gray-500 focus:outline-none"
+                      data-oid="u.qlx65" />
+
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="text-sm text-slate-200">Privacy</span>
-                      <PrivacyToggle isPublic={isPublic} onChange={setIsPublic} />
+                    <div className="flex flex-col gap-2" data-oid="fkvmz48">
+                      <span
+                      className="text-sm text-slate-200"
+                      data-oid="nx9uxu5">
+
+                        Privacy
+                      </span>
+                      <PrivacyToggle
+                      isPublic={isPublic}
+                      onChange={setIsPublic}
+                      data-oid="xxxafn8" />
+
                     </div>
-                    {saveError && (
-                      <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                        <p className="text-red-400 text-sm">{saveError}</p>
+                    {saveError &&
+                  <div
+                    className="p-3 rounded-xl bg-red-500/10 border border-red-500/20"
+                    data-oid="d3:33zu">
+
+                        <p className="text-red-400 text-sm" data-oid="5zomhnz">
+                          {saveError}
+                        </p>
                       </div>
-                    )}
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="text-sm text-gray-400">
+                  }
+                    <div
+                    className="flex items-center justify-between gap-3"
+                    data-oid="c22y74t">
+
+                      <div className="text-sm text-gray-400" data-oid=":f6dhb2">
                         Synced with server • {new Date().toLocaleDateString()}
-                        {recordsLoading && (
-                          <span className="ml-2 inline-flex items-center gap-1">
-                            <div className="animate-spin rounded-full h-3 w-3 border-b border-emerald-400"></div>
+                        {recordsLoading &&
+                      <span
+                        className="ml-2 inline-flex items-center gap-1"
+                        data-oid="_tbtofm">
+
+                            <div
+                          className="animate-spin rounded-full h-3 w-3 border-b border-emerald-400"
+                          data-oid="hrk9jq_">
+                        </div>
                             Loading...
                           </span>
-                        )}
+                      }
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div
+                      className="flex items-center gap-2"
+                      data-oid=".5:5.3e">
+
                         <button
-                          onClick={resetForm}
-                          disabled={isSaving}
-                          className="rounded-xl border border-white/20 bg-gradient-to-br from-white/[0.05] to-slate-500/[0.02] px-4 py-2 text-slate-200 hover:from-white/[0.10] hover:to-slate-500/[0.05] hover:border-white/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
+                        onClick={resetForm}
+                        disabled={isSaving}
+                        className="rounded-xl border border-white/20 bg-gradient-to-br from-white/[0.05] to-slate-500/[0.02] px-4 py-2 text-slate-200 hover:from-white/[0.10] hover:to-slate-500/[0.05] hover:border-white/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        data-oid="g5x0u1v">
+
                           Reset
                         </button>
                         <button
-                          onClick={saveCheckIn}
-                          disabled={isSaving}
-                          className="rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/15 to-pink-500/10 px-4 py-2 text-purple-100 hover:from-purple-500/25 hover:to-pink-500/15 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                          {isSaving && (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b border-emerald-400"></div>
-                          )}
-                          {isSaving ? 'Saving...' : 'Save check‑in'}
+                        onClick={saveCheckIn}
+                        disabled={isSaving}
+                        className="rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/15 to-pink-500/10 px-4 py-2 text-purple-100 hover:from-purple-500/25 hover:to-pink-500/15 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        data-oid="6db1tyz">
+
+                          {isSaving &&
+                        <div
+                          className="animate-spin rounded-full h-4 w-4 border-b border-emerald-400"
+                          data-oid=".3u43y2">
+                        </div>
+                        }
+                          {isSaving ? "Saving..." : "Save check‑in"}
                         </button>
                       </div>
                     </div>
                   </div>
-                )}
+                }
               </Card>
 
               {/* OPTION 1: Daily Quote Full Width Below Check-in */}
-              <DailyQuote />
+              <DailyQuote data-oid="fwganjd" />
 
-              <Card title="Habits" subtitle="Small actions that support your mood">
-                <HabitList habits={habits} onToggle={toggleHabit} />
+              <Card
+                title="Habits"
+                subtitle="Small actions that support your mood"
+                data-oid="a5kzp4m">
+
+                <HabitList
+                  habits={habits}
+                  onToggle={toggleHabit}
+                  data-oid="ogv9acq" />
+
               </Card>
             </div>
 
             {/* Right: Insights + History */}
-            <div className="space-y-4 md:space-y-5">
+            <div className="space-y-4 md:space-y-5" data-oid="wt9.z71">
               <Card
                 title="Insights"
                 subtitle="Last 7 days overview"
                 right={
-                  <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500" data-oid="bbr:oei">
                     {stats.entries7}d logged
                   </span>
                 }
-              >
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
-                    <div className="text-xs text-gray-400">Avg mood</div>
-                    <div className="mt-1 text-xl font-medium text-emerald-300">
+                data-oid="3e.kmoy">
+
+                <div className="grid grid-cols-3 gap-3" data-oid="90ahs-u">
+                  <div
+                    className="rounded-xl border border-white/10 bg-white/[0.02] p-3"
+                    data-oid="t6r81bh">
+
+                    <div className="text-xs text-gray-400" data-oid="jn9m8mw">
+                      Avg mood
+                    </div>
+                    <div
+                      className="mt-1 text-xl font-medium text-emerald-300"
+                      data-oid="mg4qpzx">
+
                       {stats.avg7 || "–"}
                     </div>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
-                    <div className="text-xs text-gray-400">Streak</div>
-                    <div className="mt-1 text-xl font-medium text-emerald-300">
+                  <div
+                    className="rounded-xl border border-white/10 bg-white/[0.02] p-3"
+                    data-oid="xl3n:zd">
+
+                    <div className="text-xs text-gray-400" data-oid=":gto.iv">
+                      Streak
+                    </div>
+                    <div
+                      className="mt-1 text-xl font-medium text-emerald-300"
+                      data-oid="n2jyywg">
+
                       {streakLoading ? "..." : streak}d
                     </div>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-3">
-                    <div className="text-xs text-gray-400">Entries</div>
-                    <div className="mt-1 text-xl font-medium text-emerald-300">
+                  <div
+                    className="rounded-xl border border-white/10 bg-white/[0.02] p-3"
+                    data-oid="3c.jj3c">
+
+                    <div className="text-xs text-gray-400" data-oid="w8:etz2">
+                      Entries
+                    </div>
+                    <div
+                      className="mt-1 text-xl font-medium text-emerald-300"
+                      data-oid="zr5y1g7">
+
                       {history.length}
                     </div>
                   </div>
                 </div>
-                <div className="mt-4">
-                  <MiniBars history={history} />
+                <div className="mt-4" data-oid="xov0ewe">
+                  <MiniBars history={history} data-oid="c_tqjrw" />
                 </div>
-                <div className="mt-6">
-                  <MoodHeatmap />
+                <div className="mt-6" data-oid="l3.nrl0">
+                  <MoodHeatmap data-oid="ctt:ny4" />
                 </div>
               </Card>
 
-              <Card title="Recent" subtitle="Your last entries">
-                {recordsLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+              <Card
+                title="Recent"
+                subtitle="Your last entries"
+                data-oid="utnojx1">
+
+                {recordsLoading ?
+                <div
+                  className="flex items-center justify-center py-8"
+                  data-oid="m1rm540">
+
+                    <div
+                    className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"
+                    data-oid="s-pd1m8">
                   </div>
-                ) : last5.length === 0 ? (
-                  <p className="text-sm text-gray-400">
+                  </div> :
+                last5.length === 0 ?
+                <p className="text-sm text-gray-400" data-oid="hsuq5.5">
                     No entries yet. Log your first check‑in above.
-                  </p>
-                ) : (
-                  <ul className="flex flex-col divide-y divide-white/5">
-                    {last5.map((e) => (
-                      <li 
-                        key={e.id} 
-                        className="py-3 cursor-pointer hover:bg-white/[0.02] rounded-lg transition-colors"
-                        onClick={() => handleRecordClick(e)}
-                      >
-                        <div className="flex items-start justify-between gap-3 px-2">
-                          <div className="flex items-center gap-3">
-                            <span className="text-xl" aria-hidden>
+                  </p> :
+
+                <ul
+                  className="flex flex-col divide-y divide-white/5"
+                  data-oid="u4pzb13">
+
+                    {last5.map((e) =>
+                  <li
+                    key={e.id}
+                    className="py-3 cursor-pointer hover:bg-white/[0.02] rounded-lg transition-colors"
+                    onClick={() => handleRecordClick(e)}
+                    data-oid="y9q3sc8">
+
+                        <div
+                      className="flex items-start justify-between gap-3 px-2"
+                      data-oid="s:sw5hn">
+
+                          <div
+                        className="flex items-center gap-3"
+                        data-oid="vgllw5l">
+
+                            <span
+                          className="text-xl"
+                          aria-hidden
+                          data-oid="ldnbppz">
+
                               {moodToEmoji(e.mood)}
                             </span>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <div className="text-sm text-gray-200">
-                                  {e.tags.length ? e.tags.map((t) => `#${t}`).join("  ") : "No tags"}
+                            <div data-oid="a:ksv1j">
+                              <div
+                            className="flex items-center gap-2"
+                            data-oid="se6md05">
+
+                                <div
+                              className="text-sm text-gray-200"
+                              data-oid="_yo0ueq">
+
+                                  {e.tags.length ?
+                              e.tags.map((t) => `#${t}`).join("  ") :
+                              "No tags"}
                                 </div>
                                 <span
-                                  className="text-xs"
-                                  role="img"
-                                  aria-label={e.isPublic ? "Public" : "Private"}
-                                >
+                              className="text-xs"
+                              role="img"
+                              aria-label={e.isPublic ? "Public" : "Private"}
+                              data-oid="8z2prjg">
+
                                   {e.isPublic ? "🌍" : "🔒"}
                                 </span>
                               </div>
-                              {e.notes && (
-                                <div className="mt-1 text-sm text-gray-400 line-clamp-2 max-w-[36ch]">
+                              {e.notes &&
+                          <div
+                            className="mt-1 text-sm text-gray-400 line-clamp-2 max-w-[36ch]"
+                            data-oid="hioa6i2">
+
                                   {e.notes}
                                 </div>
-                              )}
-                              <div className="mt-1 flex gap-2 text-[10px] text-gray-500">
-                                <span>Energy {e.energy}</span>
+                          }
+                              <div
+                            className="mt-1 flex gap-2 text-[10px] text-gray-500"
+                            data-oid="7evk4i5">
+
+                                <span data-oid="-7v9h2w">
+                                  Energy {e.energy}
+                                </span>
                               </div>
                             </div>
                           </div>
-                          <div className="text-xs text-gray-500 whitespace-nowrap">
+                          <div
+                        className="text-xs text-gray-500 whitespace-nowrap"
+                        data-oid="pd028.5">
+
                             {formatDate(e.date)}
                           </div>
                         </div>
                       </li>
-                    ))}
+                  )}
                   </ul>
-                )}
+                }
               </Card>
             </div>
           </div>
 
-          <footer className="mt-10 text-center text-xs text-gray-500">
-            Built with love. If you need help, talk to someone you trust. This is not medical advice.
+          <footer
+            className="mt-10 text-center text-xs text-gray-500"
+            data-oid="7356bgl">
+
+            Built with love. If you need help, talk to someone you trust. This
+            is not medical advice.
           </footer>
         </main>
       </div>
-      
+
       {/* Record Detail Modal */}
       <RecordDetailModal
         record={selectedRecord}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-      />
-    </ProtectedRoute>
-  );
+        data-oid="xzhzbxm" />
+
+    </ProtectedRoute>);
+
 }
 
 function moodToEmoji(mood: CheckIn["mood"]) {
   switch (mood) {
-    case 1: return "😣";
-    case 2: return "😞";
-    case 3: return "😕";
-    case 4: return "😟";
-    case 5: return "😐";
-    case 6: return "🙂";
-    case 7: return "😊";
-    case 8: return "😄";
-    case 9: return "😁";
-    case 10: return "🤩";
+    case 1:
+      return "😣";
+    case 2:
+      return "😞";
+    case 3:
+      return "😕";
+    case 4:
+      return "😟";
+    case 5:
+      return "😐";
+    case 6:
+      return "🙂";
+    case 7:
+      return "😊";
+    case 8:
+      return "😄";
+    case 9:
+      return "😁";
+    case 10:
+      return "🤩";
   }
 }
 
@@ -821,27 +1209,49 @@ function MiniBars({ history }: {history: CheckIn[];}) {
   for (const e of history) {
     const key = new Date(e.date).toISOString().slice(0, 10);
     if (key in byDay) {
-      byDay[key] = byDay[key] == null ? e.mood : Math.round(((byDay[key] as number) + e.mood) / 2);
+      byDay[key] =
+      byDay[key] == null ?
+      e.mood :
+      Math.round(((byDay[key] as number) + e.mood) / 2);
     }
   }
 
   return (
-    <div className="grid grid-cols-7 gap-2 items-end">
+    <div className="grid grid-cols-7 gap-2 items-end" data-oid="x31w0ka">
       {days.map((d) => {
         const v = byDay[d];
         const h = v ? v / 10 * 64 + 8 : 8; // px height
-        const color = v ? v >= 8 ? "bg-emerald-400" : v >= 6 ? "bg-lime-400" : v >= 4 ? "bg-yellow-400" : "bg-orange-400" : "bg-white/10";
+        const color = v ?
+        v >= 8 ?
+        "bg-emerald-400" :
+        v >= 6 ?
+        "bg-lime-400" :
+        v >= 4 ?
+        "bg-yellow-400" :
+        "bg-orange-400" :
+        "bg-white/10";
         return (
-          <div key={d} className="flex flex-col items-center gap-1">
-            <div className={`w-6 rounded-md ${color}`} style={{ height: h }} />
-            <div className="text-[10px] text-gray-500">
-              {new Date(d).toLocaleDateString(undefined, { weekday: "short" }).slice(0, 2)}
+          <div
+            key={d}
+            className="flex flex-col items-center gap-1"
+            data-oid="f4vfzbu">
+
+            <div
+              className={`w-6 rounded-md ${color}`}
+              style={{ height: h }}
+              data-oid="7ow0953" />
+
+
+            <div className="text-[10px] text-gray-500" data-oid="jbp47p7">
+              {new Date(d).
+              toLocaleDateString(undefined, { weekday: "short" }).
+              slice(0, 2)}
             </div>
-          </div>
-        );
+          </div>);
+
       })}
-    </div>
-  );
+    </div>);
+
 }
 
 function MoodHeatmap() {
@@ -849,27 +1259,38 @@ function MoodHeatmap() {
   const today = new Date();
   const startDate = new Date(today);
   startDate.setDate(today.getDate() - 90); // Show last 90 days
-  
+
   // Set to start of start day (00:00:00) and start of next day after today in RFC3339 format
-  const startedAt = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()).toISOString();
-  const nextDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  const startedAt = new Date(
+    startDate.getFullYear(),
+    startDate.getMonth(),
+    startDate.getDate()
+  ).toISOString();
+  const nextDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + 1
+  );
   const endedAt = nextDay.toISOString();
-  
-  const { heatmapData, loading, error } = useMentalHealthHeatmap(startedAt, endedAt);
+
+  const { heatmapData, loading, error } = useMentalHealthHeatmap(
+    startedAt,
+    endedAt
+  );
 
   // Generate all days in the range
   const days: string[] = [];
   const current = new Date(startDate);
-  
+
   // Generate days for the full range
   while (current <= today) {
     days.push(current.toISOString().slice(0, 10));
     current.setDate(current.getDate() + 1);
   }
-  
+
   // Also add any dates from API data that might be outside our range
   if (heatmapData?.data) {
-    Object.keys(heatmapData.data).forEach(apiDate => {
+    Object.keys(heatmapData.data).forEach((apiDate) => {
       if (!days.includes(apiDate)) {
         days.push(apiDate);
       }
@@ -938,113 +1359,191 @@ function MoodHeatmap() {
   };
 
   const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"];
+
 
   if (loading) {
     return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium text-gray-200">Mood Heatmap</h4>
+      <div className="space-y-3" data-oid="3rldyob">
+        <div className="flex items-center justify-between" data-oid="5nb0otv">
+          <h4 className="text-sm font-medium text-gray-200" data-oid="xz9_l-e">
+            Mood Heatmap
+          </h4>
         </div>
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-500"></div>
+        <div
+          className="flex items-center justify-center py-8"
+          data-oid="v7sb9l.">
+
+          <div
+            className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-500"
+            data-oid="ghhh4e6">
+          </div>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (error) {
     return (
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium text-gray-200">Mood Heatmap</h4>
+      <div className="space-y-3" data-oid="z7jwk8t">
+        <div className="flex items-center justify-between" data-oid="11nhtim">
+          <h4 className="text-sm font-medium text-gray-200" data-oid="5qzxyy5">
+            Mood Heatmap
+          </h4>
         </div>
-        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
-          <p className="text-red-400 text-xs">{error}</p>
+        <div
+          className="p-3 rounded-xl bg-red-500/10 border border-red-500/20"
+          data-oid="9s6tq5n">
+
+          <p className="text-red-400 text-xs" data-oid="rf0ncjj">
+            {error}
+          </p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-gray-200">Mood Heatmap</h4>
-        <div className="flex items-center gap-1 text-xs text-gray-400">
-          <span>Less</span>
-          <div className="flex gap-1">
-            <div className="w-2 h-2 rounded-sm bg-white/5"></div>
-            <div className="w-2 h-2 rounded-sm bg-red-400 opacity-40"></div>
-            <div className="w-2 h-2 rounded-sm bg-orange-400 opacity-60"></div>
-            <div className="w-2 h-2 rounded-sm bg-yellow-400 opacity-80"></div>
-            <div className="w-2 h-2 rounded-sm bg-emerald-400 opacity-100"></div>
+    <div className="space-y-3" data-oid="25-wn2m">
+      <div className="flex items-center justify-between" data-oid="cpdoij6">
+        <h4 className="text-sm font-medium text-gray-200" data-oid="v4-n1ri">
+          Mood Heatmap
+        </h4>
+        <div
+          className="flex items-center gap-1 text-xs text-gray-400"
+          data-oid="9lf2hws">
+
+          <span data-oid="g9mv.24">Less</span>
+          <div className="flex gap-1" data-oid="7imz7pc">
+            <div
+              className="w-2 h-2 rounded-sm bg-white/5"
+              data-oid="w3ypnva">
+            </div>
+            <div
+              className="w-2 h-2 rounded-sm bg-red-400 opacity-40"
+              data-oid="pt-s6bj">
+            </div>
+            <div
+              className="w-2 h-2 rounded-sm bg-orange-400 opacity-60"
+              data-oid="ysq5gxv">
+            </div>
+            <div
+              className="w-2 h-2 rounded-sm bg-yellow-400 opacity-80"
+              data-oid="mzy2w0b">
+            </div>
+            <div
+              className="w-2 h-2 rounded-sm bg-emerald-400 opacity-100"
+              data-oid="t_s81eu">
+            </div>
           </div>
-          <span>More</span>
+          <span data-oid="g8_cupo">More</span>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <div className="flex gap-1 min-w-fit">
+      <div className="overflow-x-auto" data-oid="fh2_w3:">
+        <div className="flex gap-1 min-w-fit" data-oid="d60j8s9">
           {/* Weekday labels */}
-          <div className="flex flex-col gap-1 mr-2">
-            <div className="h-3"></div> {/* Space for month labels */}
-            {weekdays.map((day, i) => (
-              <div key={i} className="w-3 h-3 flex items-center justify-center text-[10px] text-gray-500">
+          <div className="flex flex-col gap-1 mr-2" data-oid="5l1hdxc">
+            <div className="h-3" data-oid="rihe8kz"></div>{" "}
+            {/* Space for month labels */}
+            {weekdays.map((day, i) =>
+            <div
+              key={i}
+              className="w-3 h-3 flex items-center justify-center text-[10px] text-gray-500"
+              data-oid="zxs2mk2">
+
                 {i % 2 === 1 ? day : ""}
               </div>
-            ))}
+            )}
           </div>
 
           {/* Heatmap grid */}
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1" data-oid="_vpipot">
             {/* Month labels */}
-            <div className="flex gap-1 h-3">
+            <div className="flex gap-1 h-3" data-oid="ij6zi8l">
               {weeks.map((week, weekIndex) => {
                 const firstDay = week.find((day) => day !== "");
-                if (!firstDay) return <div key={weekIndex} className="w-3"></div>;
+                if (!firstDay)
+                return (
+                  <div
+                    key={weekIndex}
+                    className="w-3"
+                    data-oid="i30:375">
+                  </div>);
+
 
                 const date = new Date(firstDay);
                 const isFirstWeekOfMonth = date.getDate() <= 7;
 
                 return (
-                  <div key={weekIndex} className="w-3 text-[10px] text-gray-500">
-                    {isFirstWeekOfMonth ? months[date.getMonth()].slice(0, 3) : ""}
-                  </div>
-                );
+                  <div
+                    key={weekIndex}
+                    className="w-3 text-[10px] text-gray-500"
+                    data-oid="jzpmcid">
+
+                    {isFirstWeekOfMonth ?
+                    months[date.getMonth()].slice(0, 3) :
+                    ""}
+                  </div>);
+
               })}
             </div>
 
             {/* Days grid */}
-            <div className="flex gap-1">
-              {weeks.map((week, weekIndex) => (
-                <div key={weekIndex} className="flex flex-col gap-1">
+            <div className="flex gap-1" data-oid="c54rc8n">
+              {weeks.map((week, weekIndex) =>
+              <div
+                key={weekIndex}
+                className="flex flex-col gap-1"
+                data-oid="csi.u1n">
+
                   {week.map((day, dayIndex) => {
-                    if (!day) return <div key={dayIndex} className="w-3 h-3"></div>;
+                  if (!day)
+                  return (
+                    <div
+                      key={dayIndex}
+                      className="w-3 h-3"
+                      data-oid="f6..inr">
+                    </div>);
 
-                    const mood = byDay[day];
-                    const date = new Date(day);
-                    const isToday = day === today.toISOString().slice(0, 10);
 
-                    return (
-                      <div
-                        key={day}
-                        className={`w-3 h-3 rounded-sm ${getMoodColor(mood)} ${getMoodIntensity(mood)} ${
-                          isToday ? "ring-1 ring-white/60" : ""
-                        } transition-all hover:scale-110 cursor-pointer`}
-                        title={`${date.toLocaleDateString()}: ${mood ? `Mood ${mood}` : "No entry"}`}
-                      />
-                    );
-                  })}
+                  const mood = byDay[day];
+                  const date = new Date(day);
+                  const isToday = day === today.toISOString().slice(0, 10);
+
+                  return (
+                    <div
+                      key={day}
+                      className={`w-3 h-3 rounded-sm ${getMoodColor(mood)} ${getMoodIntensity(mood)} ${
+                      isToday ? "ring-1 ring-white/60" : ""} transition-all hover:scale-110 cursor-pointer`
+                      }
+                      title={`${date.toLocaleDateString()}: ${mood ? `Mood ${mood}` : "No entry"}`}
+                      data-oid="_jlaif9" />);
+
+
+                })}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-gray-500" data-oid="fbcistc">
         {heatmapData?.total_records || 0} entries in the last 90 days
       </div>
-    </div>
-  );
+    </div>);
+
 }
