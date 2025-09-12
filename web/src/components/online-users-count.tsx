@@ -77,9 +77,9 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
           setConnected(true);
           setError(null);
           retryAttemptRef.current = 0; // reset backoff
-          // yêu cầu server trả về số lượng online ngay khi kết nối
+          // Request server to return online count immediately when connected
           ws.send(JSON.stringify({ type: "get_amount_online_users" }));
-          // Thiết lập timers theo visibility hiện tại
+          // Setup timers based on current visibility
           applyTimers(ws, { hidden: document.hidden });
         };
 
@@ -128,14 +128,14 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
     connect(token);
     lastTokenRef.current = token;
 
-    // Poll token thay đổi để reconnect chủ động khi token refresh
+    // Poll token changes to reconnect proactively when token refreshes
     if (tokenCheckTimerRef.current) clearInterval(tokenCheckTimerRef.current);
     tokenCheckTimerRef.current = setInterval(() => {
       const current = Cookies.get("access_token") || null;
       const prev = lastTokenRef.current;
       if (current && prev && current !== prev) {
         lastTokenRef.current = current;
-        // Đóng WS để kết nối lại với token mới
+        // Close WS to reconnect with new token
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
           wsRef.current.close();
         }
@@ -153,7 +153,7 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
     };
   }, [wsUrl, isAuthenticated]);
 
-  // Refresh count khi tab lấy lại focus
+  // Refresh count when tab regains focus
   useEffect(() => {
     const onFocus = () => {
       const ws = wsRef.current;
@@ -165,15 +165,15 @@ export default function OnlineUsersCount({ className, wsUrl }: Props) {
     return () => window.removeEventListener("focus", onFocus);
   }, []);
 
-  // Tối ưu visibility: tăng ping interval và tắt count khi tab ẩn; khôi phục khi hiện
+  // Optimize visibility: increase ping interval and disable count when tab hidden; restore when visible
   useEffect(() => {
     const onVisibility = () => {
       const ws = wsRef.current;
       if (!ws) return;
-      // Áp dụng timers mới
+      // Apply new timers
       applyTimers(ws, { hidden: document.hidden });
       if (!document.hidden && ws.readyState === WebSocket.OPEN) {
-        // Khi hiện lại: cập nhật tức thì
+        // When visible again: update immediately
         ws.send(JSON.stringify({ type: "ping" }));
         ws.send(JSON.stringify({ type: "get_amount_online_users" }));
       }
