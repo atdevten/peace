@@ -4,6 +4,10 @@ server
 .DS_Store
 web/node_modules/
 web/.next/
-configs/config.yml
 web/.env.local
 backend/bin/*
+backend/coverage.out
+backend/configs/config.yml
+coverage.out
+backend/configs/config.env
+backend/configs/docker.env

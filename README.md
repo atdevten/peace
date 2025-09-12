@@ -6,18 +6,19 @@ A full-stack mental health tracking application with Go backend and Next.js fron
 
 ```
 /peace
-├── backend/           # Go backend application
-│   ├── cmd/          # Application entrypoints
-│   ├── internal/     # Private application code
-│   ├── pkg/          # Public library code
-│   ├── configs/      # Configuration files
-│   ├── migrations/   # Database migrations
-│   ├── Dockerfile    # Backend Docker config
-│   └── Makefile      # Backend build commands
-├── web/              # Next.js frontend application
-├── docker-compose.yml # Production Docker setup
-├── docker-compose.dev.yml # Development Docker setup
-└── Makefile          # Root Makefile (delegates to backend)
+├── backend/                    # Go backend application
+│   ├── cmd/                   # Application entrypoints
+│   ├── internal/              # Private application code
+│   ├── pkg/                   # Public library code
+│   ├── configs/               # Configuration files
+│   ├── migrations/            # Database migrations
+│   ├── Dockerfile             # Backend Docker config
+│   └── Makefile               # Backend build commands
+├── web/                       # Next.js frontend application
+├── docker-compose.local.yml   # Local development
+├── docker-compose.production.yml # Production environment
+├── DOCKER.md                  # Docker setup guide
+└── Makefile                   # Root Makefile (delegates to backend)
 ```
 
 ## Quick Start
@@ -36,16 +37,33 @@ A full-stack mental health tracking application with Go backend and Next.js fron
    cd peace
    ```
 
-2. **Start backend development server**
+2. **Start local development:**
    ```bash
-   make dev
+   # Start everything in containers (recommended)
+   make docker-up
+   
+   # Access:
+   # - Frontend: http://localhost (via Traefik)
+   # - Backend API: http://api.localhost (via Traefik)
+   # - WebSocket Server: http://ws.localhost (via Traefik)
+   # - Traefik Dashboard: http://traefik.localhost:8080
    ```
 
-3. **Start frontend development server** (in another terminal)
+   **Alternative: Run backend locally**
    ```bash
-   cd web
-   npm install
-   npm run dev
+   # Start only database and redis containers
+   docker-compose -f docker-compose.local.yml up -d postgres redis
+   
+   # Run backend locally (in another terminal)
+   make dev
+   
+   # Run frontend locally (in another terminal)
+   make web-dev
+   ```
+
+3. **Install frontend dependencies** (if running frontend locally)
+   ```bash
+   make web-install
    ```
 
 4. **Or start both together**
@@ -109,13 +127,36 @@ make migrate-status   # Show migration status
 
 ## Configuration
 
-Backend configuration is managed through:
+### Backend Configuration
 - `backend/configs/config.yml` - Main configuration file
 - Environment variables (see docker-compose files)
 
-Frontend configuration:
+### Frontend Configuration
 - `web/.env.local` - Local environment variables
 - `web/next.config.ts` - Next.js configuration
+
+### Production Deployment
+1. **Setup Environment Files:**
+   ```bash
+   cp env.staging.example .env.staging
+   cp env.production.example .env.production
+   # Edit the files with your actual values
+   ```
+
+2. **Deploy to Staging:**
+   ```bash
+   ./scripts/deploy.sh staging
+   ```
+
+3. **Deploy to Production:**
+   ```bash
+   ./scripts/deploy.sh production
+   ```
+
+### Traefik Configuration
+- **Auto SSL**: Let's Encrypt certificates automatically generated
+- **Dashboard**: Available at `http://your-domain:8080` (staging) or `https://traefik.your-domain` (production)
+- **Routes**: Automatically configured based on Docker labels
 
 ## Development
 

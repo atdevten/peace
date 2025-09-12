@@ -1,7 +1,7 @@
 FROM golang:1.24-alpine
 
-# Install git and ca-certificates
-RUN apk add --no-cache git ca-certificates
+# Install git, ca-certificates, and postgresql-client for data import
+RUN apk add --no-cache git ca-certificates postgresql-client
 
 # Set working directory
 WORKDIR /app
@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 8080 2345
 
 # Run the application directly with config
-CMD ["go", "run", "./cmd/server/main.go", "-config", "./configs/config.yml"]
+CMD ["go", "run", "./cmd/server/main.go", "-config", "./configs/docker.env"]

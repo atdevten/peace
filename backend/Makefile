@@ -37,10 +37,10 @@ run:
 dev: dev-server dev-websocket
 dev-server:
 	@echo "Starting HTTP server..."
-	@go run ./cmd/server/main.go -config configs/config.yml
+	@go run ./cmd/server/main.go -config configs/config.env
 dev-websocket:
 	@echo "Starting WebSocket server..."
-	@go run ./cmd/websocket-server/main.go -config configs/config.yml
+	@go run ./cmd/websocket-server/main.go -config configs/config.env
 
 # Stop all services
 stop:
@@ -64,7 +64,7 @@ health:
 	@curl -f http://localhost:8080/health || echo "HTTP server is not healthy"
 	@curl -f http://localhost:8081/ws/health || echo "WebSocket server is not healthy"
 	@curl -f http://localhost:5432 || echo "PostgreSQL is not healthy"
-	@curl -f http://localhost:6380 || echo "Redis is not healthy"
+	@curl -f http://localhost:6379 || echo "Redis is not healthy"
 
 # ZIP file import commands
 quotes-import-zip:
@@ -77,7 +77,7 @@ quotes-import-zip:
 		exit 1; \
 	fi
 	@echo "Processing file: $(FILE)"
-	@./bin/quotes --config=configs/config.yml --file="$(FILE)" --workers=10 --batch-size=100
+	@./bin/quotes --config=configs/config.env --file="$(FILE)" --workers=10 --batch-size=100
 
 quotes-import-zip-dry:
 	@echo "Building quotes importer..."
@@ -89,7 +89,7 @@ quotes-import-zip-dry:
 		exit 1; \
 	fi
 	@echo "Processing file: $(FILE)"
-	@./bin/quotes --config=configs/config.yml --file="$(FILE)" --dry-run --workers=5 --batch-size=50
+	@./bin/quotes --config=configs/config.env --file="$(FILE)" --dry-run --workers=5 --batch-size=50
 	
 # Data management commands
 data-reset:

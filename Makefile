@@ -43,18 +43,25 @@ logs-redis: ## Show Redis logs
 	@cd backend && $(MAKE) logs-redis
 
 # Docker commands (run from root since docker-compose files are here)
-docker-up: ## Start all services with Docker
-	docker-compose up -d
+docker-up: ## Start all services with Docker (local development)
+	docker-compose -f docker-compose.local.yml up -d
 
 docker-down: ## Stop all Docker services
-	docker-compose down
+	docker-compose -f docker-compose.local.yml down
 
 docker-build: ## Build Docker images
-	docker-compose build
+	docker-compose -f docker-compose.local.yml build
 
 docker-clean: ## Clean Docker resources
-	docker-compose down -v --remove-orphans
+	docker-compose -f docker-compose.local.yml down -v --remove-orphans
 	docker system prune -f
+
+# Production environment
+prod-up: ## Start production environment
+	docker-compose -f docker-compose.production.yml up -d
+
+prod-down: ## Stop production environment
+	docker-compose -f docker-compose.production.yml down
 
 # Frontend commands
 web-dev: ## Start frontend development server
