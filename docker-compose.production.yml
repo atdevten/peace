@@ -1,0 +1,320 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: peace_postgres_prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: peace_production
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:5432:5432" # Only bind to localhost
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - peace_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d peace_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: peace_redis_prod
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379" # Only bind to localhost
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      - peace_network
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    image: ghcr.io/atdevten/peace/backend:latest
+    container_name: peace_backend_prod
+    restart: unless-stopped
+    environment:
+      # Server config
+      SERVER_PORT: 8080
+      SERVER_HOST: 0.0.0.0
+
+      # Database config
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: peace_production
+      POSTGRES_SSLMODE: require
+
+      # Redis config
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DB: 0
+
+      # App config
+      ENVIRONMENT: production
+      LOG_LEVEL: warn
+
+      # JWT config
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: 24h
+      JWT_REFRESH_EXPIRATION: 168h
+
+      # Cache config
+      CACHE_TTL: 300s
+      CACHE_ENABLED: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      data-importer:
+        condition: service_completed_successfully
+    networks:
+      - peace_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.peace.com`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # WebSocket Server
+  websocket:
+    image: ghcr.io/atdevten/peace/websocket:latest
+    container_name: peace_websocket_prod
+    restart: unless-stopped
+    environment:
+      # Server config
+      SERVER_PORT: 8081
+      SERVER_HOST: 0.0.0.0
+
+      # Database config
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: peace_production
+      POSTGRES_SSLMODE: require
+
+      # Redis config
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DB: 0
+
+      # App config
+      ENVIRONMENT: production
+      LOG_LEVEL: warn
+
+      # JWT config
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: 24h
+      JWT_REFRESH_EXPIRATION: 168h
+
+      # Cache config
+      CACHE_TTL: 300s
+      CACHE_ENABLED: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - peace_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.websocket.rule=Host(`ws.peace.com`)"
+      - "traefik.http.routers.websocket.entrypoints=websecure"
+      - "traefik.http.routers.websocket.tls.certresolver=letsencrypt"
+      - "traefik.http.services.websocket.loadbalancer.server.port=8081"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8081/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Data Importer (runs once on startup)
+  data-importer:
+    image: ghcr.io/atdevten/peace/backend:latest
+    container_name: peace_data_importer_prod
+    restart: "no"
+    environment:
+      # Database config
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: peace_production
+      POSTGRES_SSLMODE: require
+
+      # Redis config
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_DB: 0
+
+      # App config
+      ENVIRONMENT: production
+      LOG_LEVEL: warn
+
+      # JWT config
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: 24h
+      JWT_REFRESH_EXPIRATION: 168h
+
+      # Cache config
+      CACHE_TTL: 300s
+      CACHE_ENABLED: true
+    volumes:
+      - ./quotes.csv.zip:/app/quotes.csv.zip:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - peace_network
+    command: >
+      sh -c "
+        # Wait for database to be fully ready
+        sleep 5 &&
+        # Check if quotes already exist
+        QUOTE_COUNT=$$(echo 'SELECT COUNT(*) FROM quotes;' | PGPASSWORD=${POSTGRES_PASSWORD} psql -h postgres -U postgres -d peace_production -t -A 2>/dev/null | tr -d ' ') &&
+        if [ \"$$QUOTE_COUNT\" -gt \"0\" ]; then
+          echo '✅ Found '$$QUOTE_COUNT' quotes in database. Skipping import.'
+        else
+          echo '📝 No quotes found. Starting import...' &&
+          ./data-importer -file ./quotes.csv.zip -workers 5 -batch-size 50 &&
+          echo '✅ Data import completed successfully!'
+        fi
+      "
+
+  # Frontend
+  frontend:
+    image: ghcr.io/atdevten/peace/frontend:latest
+    container_name: peace_frontend_prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://api.peace.com
+      NEXT_PUBLIC_WS_URL: wss://ws.peace.com/ws
+    depends_on:
+      - backend
+      - websocket
+    networks:
+      - peace_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`peace.com`) || Host(`www.peace.com`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Traefik Reverse Proxy
+  traefik:
+    image: traefik:v3.0
+    container_name: peace_traefik_prod
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/letsencrypt:/letsencrypt
+      - ./traefik/logs:/var/log/traefik
+    networks:
+      - peace_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.peace.com`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik.service=api@internal"
+
+  # Database Backup Service
+  backup:
+    image: postgres:15-alpine
+    container_name: peace_backup_prod
+    restart: "no"
+    environment:
+      POSTGRES_DB: peace_production
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: postgres
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    networks:
+      - peace_network
+    depends_on:
+      - postgres
+    command: /bin/sh -c "while true; do sleep 86400; /backup.sh; done"
+
+volumes:
+  postgres_prod_data:
+    driver: local
+  redis_prod_data:
+    driver: local
+
+networks:
+  peace_network:
+    driver: bridge

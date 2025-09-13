@@ -14,15 +14,15 @@ func TestNewMentalHealthRecordStatus(t *testing.T) {
 	}{
 		{
 			name:        "valid status open",
-			input:       "PUBLIC",
-			wantValue:   "PUBLIC",
+			input:       "public",
+			wantValue:   "public",
 			wantErr:     false,
 			expectedErr: "",
 		},
 		{
 			name:        "valid status closed",
-			input:       "PRIVATE",
-			wantValue:   "PRIVATE",
+			input:       "private",
+			wantValue:   "private",
 			wantErr:     false,
 			expectedErr: "",
 		},
@@ -45,7 +45,7 @@ func TestNewMentalHealthRecordStatus(t *testing.T) {
 			input:       " active ",
 			wantValue:   "",
 			wantErr:     true,
-			expectedErr: "invalid mental health record status:  active ",
+			expectedErr: "invalid mental health record status: active",
 		},
 	}
 
@@ -87,12 +87,12 @@ func TestMentalHealthRecordStatus_String(t *testing.T) {
 		{
 			name:  "public status",
 			value: RecordStatusPublic,
-			want:  "PUBLIC",
+			want:  "public",
 		},
 		{
 			name:  "private status",
 			value: RecordStatusPrivate,
-			want:  "PRIVATE",
+			want:  "private",
 		},
 		{
 			name:  "empty status",

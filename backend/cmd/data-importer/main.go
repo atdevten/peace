@@ -154,7 +154,7 @@ func (p *CSVProcessor) ProcessFile(filePath string) error {
 
 func main() {
 	filePath := flag.String("file", "quotes.csv", "The path to the CSV file or ZIP file")
-	configPath := flag.String("config", "configs/config.yml", "The path to the config file")
+	configPath := flag.String("config", "configs/config.env", "The path to the config file")
 	dryRun := flag.Bool("dry-run", false, "If true, only parse and validate quotes without inserting to DB")
 	workers := flag.Int("workers", 10, "Number of worker goroutines")
 	batchSize := flag.Int("batch-size", 100, "Number of quotes to process in each batch")
