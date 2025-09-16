@@ -171,3 +171,21 @@ clean-logs:
 	@echo "Cleaning log files..."
 	@docker system prune -f
 	@echo "Log files cleaned!"
+
+# Mock generation
+generate-mocks:
+	@echo "Generating all mock files..."
+	@./scripts/generate-mocks.sh
+
+# Clean mocks
+clean-mocks:
+	@echo "Cleaning mock files..."
+	@rm -rf testutils/mocks/repositories/*.go
+	@rm -rf testutils/mocks/usecases/*.go
+	@rm -rf testutils/mocks/services/*.go
+	@echo "Mock files cleaned!"
+
+# Test with mocks
+test-unit:
+	@echo "Running unit tests..."
+	@go test -short ./...

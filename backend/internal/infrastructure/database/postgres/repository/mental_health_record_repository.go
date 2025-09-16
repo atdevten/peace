@@ -90,7 +90,7 @@ func (r *PostgreSQLMentalHealthRecordRepository) GetByID(ctx context.Context, id
 }
 
 func (r *PostgreSQLMentalHealthRecordRepository) Delete(ctx context.Context, id *value_objects.MentalHealthRecordID) error {
-	result := r.db.WithContext(ctx).Delete(&models.MentalHealthRecord{}, id.String())
+	result := r.db.WithContext(ctx).Where("id = ?", id.String()).Delete(&models.MentalHealthRecord{})
 	if result.Error != nil {
 		return fmt.Errorf("r.db.Delete: %w", result.Error)
 	}
