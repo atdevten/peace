@@ -147,22 +147,29 @@ func TestNewDatabaseManager(t *testing.T) {
 }
 
 func TestNewDatabaseManager_NilConfig(t *testing.T) {
-	// This test will panic due to nil pointer dereference
-	// We need to handle this case in the implementation
-	defer func() {
-		if r := recover(); r != nil {
-			// Expected panic due to nil config
-			errStr := fmt.Sprintf("%v", r)
-			assert.Contains(t, errStr, "runtime error: invalid memory address or nil pointer dereference")
-		}
+	// Test that nil config causes panic
+	var panicOccurred bool
+	var panicValue interface{}
+
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				panicOccurred = true
+				panicValue = r
+			}
+		}()
+
+		// This should panic due to nil pointer dereference
+		NewDatabaseManager(nil)
 	}()
 
-	dbManager, err := NewDatabaseManager(nil)
+	// Verify that panic occurred
+	assert.True(t, panicOccurred, "Expected panic when passing nil config")
+	assert.NotNil(t, panicValue, "Expected panic value to be non-nil")
 
-	// This line should not be reached due to panic
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to connect to PostgreSQL")
-	assert.Nil(t, dbManager)
+	// Check that the panic is due to nil pointer dereference
+	errStr := fmt.Sprintf("%v", panicValue)
+	assert.Contains(t, errStr, "runtime error: invalid memory address or nil pointer dereference")
 }
 
 func TestNewDatabaseManager_EmptyDSN(t *testing.T) {
@@ -289,18 +296,30 @@ func TestConfig_GetPostgresDSN(t *testing.T) {
 }
 
 func TestConfig_GetPostgresDSN_NilConfig(t *testing.T) {
-	// This test will panic due to nil pointer dereference
-	defer func() {
-		if r := recover(); r != nil {
-			// Expected panic due to nil config
-			errStr := fmt.Sprintf("%v", r)
-			assert.Contains(t, errStr, "runtime error: invalid memory address or nil pointer dereference")
-		}
+	// Test that nil config causes panic
+	var panicOccurred bool
+	var panicValue interface{}
+
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				panicOccurred = true
+				panicValue = r
+			}
+		}()
+
+		// This should panic due to nil pointer dereference
+		var config *config.Config
+		config.GetPostgresDSN()
 	}()
 
-	var config *config.Config
-	dsn := config.GetPostgresDSN()
-	assert.Empty(t, dsn)
+	// Verify that panic occurred
+	assert.True(t, panicOccurred, "Expected panic when calling GetPostgresDSN on nil config")
+	assert.NotNil(t, panicValue, "Expected panic value to be non-nil")
+
+	// Check that the panic is due to nil pointer dereference
+	errStr := fmt.Sprintf("%v", panicValue)
+	assert.Contains(t, errStr, "runtime error: invalid memory address or nil pointer dereference")
 }
 
 func TestConfig_GetPostgresDSN_EmptyConfig(t *testing.T) {
