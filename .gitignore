@@ -1,6 +1,6 @@
 tmp/*
 .cursor/*
-server
+/server
 .DS_Store
 web/node_modules/
 web/.next/
@@ -11,3 +11,5 @@ backend/configs/config.yml
 coverage.out
 backend/configs/config.env
 backend/configs/docker.env
+backend/server
+backend/cmd/server/__debug_*
