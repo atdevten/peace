@@ -12,11 +12,14 @@ import (
 	infraConfig "github.com/atdevten/peace/internal/infrastructure/config"
 	infraDB "github.com/atdevten/peace/internal/infrastructure/database"
 	pgRepo "github.com/atdevten/peace/internal/infrastructure/database/postgres/repository"
+	infraLogging "github.com/atdevten/peace/internal/infrastructure/logging"
+	infraTracing "github.com/atdevten/peace/internal/infrastructure/tracing"
 	httpHandlers "github.com/atdevten/peace/internal/interfaces/http/handlers"
 	httpMiddleware "github.com/atdevten/peace/internal/interfaces/http/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
 // HTTPServer wires infrastructure, application and interface layers, and runs Gin HTTP server
@@ -25,10 +28,34 @@ type HTTPServer struct {
 	dbManager  *infraDB.DatabaseManager
 	engine     *gin.Engine
 	httpServer *http.Server
+	logger     *infraLogging.Logger
+	tracer     *infraTracing.Tracer
 }
 
 // NewHTTPServer initializes dependencies, registers routes, and returns a ready server instance
 func NewHTTPServer(cfg *infraConfig.Config) (*HTTPServer, error) {
+	// Initialize logging
+	logger := infraLogging.NewLogger(&infraLogging.Config{
+		Level:      cfg.Log.Level,
+		Format:     cfg.Log.Format,
+		TimeFormat: cfg.Log.TimeFormat,
+		Caller:     cfg.Log.Caller,
+		CallerSkip: cfg.Log.CallerSkip,
+		FilePath:   cfg.Log.FilePath,
+	})
+
+	// Initialize tracing
+	tracer, err := infraTracing.NewTracer(&infraTracing.Config{
+		Enabled:          cfg.ELK.Enabled,
+		ServiceName:      cfg.ELK.ServiceName,
+		Environment:      cfg.ELK.Environment,
+		APMServerURL:     cfg.ELK.APMServerURL,
+		ElasticsearchURL: cfg.ELK.ElasticsearchURL,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize tracing: %w", err)
+	}
+
 	// Initialize database(s)
 	dbManager, err := infraDB.NewDatabaseManager(cfg)
 	if err != nil {
@@ -71,9 +98,18 @@ func NewHTTPServer(cfg *infraConfig.Config) (*HTTPServer, error) {
 
 	// Middleware
 	authMW := httpMiddleware.NewAuthMiddleware(jwtService)
+	loggingMW := httpMiddleware.NewLoggingMiddleware(logger)
 
 	// Gin engine
 	engine := gin.Default()
+
+	// Add OpenTelemetry middleware
+	if tracer.IsEnabled() {
+		engine.Use(otelgin.Middleware(cfg.ELK.ServiceName))
+	}
+
+	// Add logging middleware
+	engine.Use(loggingMW.RequestLogger())
 
 	// CORS middleware
 	corsConfig := cors.Config{
@@ -166,6 +202,8 @@ func NewHTTPServer(cfg *infraConfig.Config) (*HTTPServer, error) {
 		cfg:       cfg,
 		dbManager: dbManager,
 		engine:    engine,
+		logger:    logger,
+		tracer:    tracer,
 	}
 
 	// Prepare http.Server with timeouts
@@ -200,6 +238,14 @@ func (s *HTTPServer) Shutdown(ctx context.Context) error {
 	// Close DB connections
 	if s.dbManager != nil {
 		s.dbManager.Close()
+	}
+	// Shutdown tracing
+	if s.tracer != nil {
+		if err := s.tracer.Shutdown(ctx); err != nil {
+			if firstErr == nil {
+				firstErr = fmt.Errorf("tracer shutdown: %w", err)
+			}
+		}
 	}
 	return firstErr
 }
