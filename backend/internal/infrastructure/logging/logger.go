@@ -23,6 +23,7 @@ type Config struct {
 type Logger struct {
 	logger zerolog.Logger
 	config *Config
+	File   *os.File // Store file handle for cleanup
 }
 
 func NewLogger(config *Config) *Logger {
@@ -38,6 +39,7 @@ func NewLogger(config *Config) *Logger {
 
 	// Create output writer
 	var output io.Writer
+	var file *os.File
 	if config.FilePath != "" {
 		// Ensure log directory exists
 		logDir := filepath.Dir(config.FilePath)
@@ -46,7 +48,7 @@ func NewLogger(config *Config) *Logger {
 		}
 
 		// Create log file
-		file, err := os.OpenFile(config.FilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		file, err = os.OpenFile(config.FilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
 			panic(err)
 		}
@@ -76,6 +78,7 @@ func NewLogger(config *Config) *Logger {
 	return &Logger{
 		logger: logger,
 		config: config,
+		File:   file,
 	}
 }
 
@@ -122,4 +125,14 @@ func (l *Logger) WithFields(ctx context.Context, fields map[string]interface{}) 
 		logger = logger.With().Interface(key, value).Logger()
 	}
 	return &logger
+}
+
+// Close closes the file handle if it was opened for file logging
+func (l *Logger) Close() error {
+	if l.File != nil {
+		err := l.File.Close()
+		l.File = nil // Set to nil to prevent double close
+		return err
+	}
+	return nil
 }

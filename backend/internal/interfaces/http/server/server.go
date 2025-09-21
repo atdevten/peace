@@ -235,6 +235,14 @@ func (s *HTTPServer) Shutdown(ctx context.Context) error {
 			firstErr = fmt.Errorf("http shutdown: %w", err)
 		}
 	}
+	// Close logger file handle
+	if s.logger != nil {
+		if err := s.logger.Close(); err != nil {
+			if firstErr == nil {
+				firstErr = fmt.Errorf("logger close: %w", err)
+			}
+		}
+	}
 	// Close DB connections
 	if s.dbManager != nil {
 		s.dbManager.Close()
