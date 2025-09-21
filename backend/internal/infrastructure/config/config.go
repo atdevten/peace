@@ -17,6 +17,7 @@ type Config struct {
 	App      AppConfig
 	Auth     AuthConfig
 	Log      LogConfig
+	ELK      ELKConfig
 }
 
 // ServerConfig represents server configuration
@@ -96,6 +97,16 @@ type LogConfig struct {
 	TimeFormat string
 	Caller     bool
 	CallerSkip int
+	FilePath   string
+}
+
+// ELKConfig represents ELK Stack configuration
+type ELKConfig struct {
+	Enabled          bool
+	ServiceName      string
+	Environment      string
+	APMServerURL     string
+	ElasticsearchURL string
 }
 
 // Load loads configuration from environment variables and optional .env file
@@ -213,6 +224,14 @@ func loadFromEnvironment() (*Config, error) {
 	config.Log.TimeFormat = getEnvOrDefault("LOG_TIME_FORMAT", "2006-01-02T15:04:05Z07:00")
 	config.Log.Caller = getEnvAsBoolOrDefault("LOG_CALLER", false)
 	config.Log.CallerSkip = getEnvAsIntOrDefault("LOG_CALLER_SKIP", 2)
+	config.Log.FilePath = getEnvOrDefault("LOG_FILE_PATH", "./logs/app.log")
+
+	// Load ELK config
+	config.ELK.Enabled = getEnvAsBoolOrDefault("ELK_ENABLED", false)
+	config.ELK.ServiceName = getEnvOrDefault("ELK_SERVICE_NAME", "peace-backend")
+	config.ELK.Environment = getEnvOrDefault("ELK_ENVIRONMENT", "development")
+	config.ELK.APMServerURL = getEnvOrDefault("ELK_APM_SERVER_URL", "http://localhost:8200")
+	config.ELK.ElasticsearchURL = getEnvOrDefault("ELK_ELASTICSEARCH_URL", "http://localhost:9200")
 
 	return config, nil
 }

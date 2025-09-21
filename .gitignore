@@ -13,3 +13,5 @@ backend/configs/config.env
 backend/configs/docker.env
 backend/server
 backend/cmd/server/__debug_*
+backend/logs/*.log
+backend/quotes.csv.zip

@@ -1,0 +1,31 @@
+filebeat.inputs:
+- type: filestream
+  id: peace-backend-logs
+  enabled: true
+  paths:
+    - /var/log/peace/*.log
+  fields:
+    service: peace-backend
+    environment: development
+  fields_under_root: true
+  parsers:
+    - ndjson:
+        keys_under_root: true
+        add_error_key: true
+        message_key: message
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+processors:
+- add_host_metadata:
+    when.not.contains.tags: forwarded
+- add_docker_metadata: ~
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
